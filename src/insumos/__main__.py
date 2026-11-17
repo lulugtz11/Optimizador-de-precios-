@@ -11,6 +11,8 @@
     python -m insumos fondas           # genera 4 fondas simuladas (necesita gold)
     python -m insumos estados          # precios en las ~49 centrales de 31 estados (desde 2022, ~1.5 h)
     python -m insumos modelo           # backtest + KPIs + pronóstico a 12 semanas (~3 min)
+    python -m insumos dashboard        # genera app/dashboard.html (se abre con doble clic)
+    python -m insumos menus_llm        # Claude propone menús; el código los verifica (ANTHROPIC_API_KEY)
     python -m insumos todo             # todo lo anterior en orden
     python -m insumos demo             # corre gold/costeo/calidad con datos SIMULADOS (data_sample/)
 """
@@ -37,7 +39,7 @@ def _cargar_env() -> None:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="insumos", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("comando", choices=["productos", "ingesta", "silver", "gold", "costeo", "calidad", "fondas", "inegi", "pecuarios", "modelo", "estados", "todo", "demo"])
+    p.add_argument("comando", choices=["productos", "ingesta", "silver", "gold", "costeo", "calidad", "fondas", "inegi", "pecuarios", "modelo", "estados", "dashboard", "menus_llm", "todo", "demo"])
     p.add_argument("--desde", default=config.FECHA_INICIO_DEFAULT)
     p.add_argument("--hasta", default=None)
     p.add_argument("--solo", nargs="*", help="insumo_id a descargar (default: todos)")
@@ -79,6 +81,17 @@ def main(argv: list[str] | None = None) -> int:
                     fn()
                 except Exception as e:  # una fuente caída no detiene el pipeline
                     log.warning("%s omitido: %s", nombre, e)
+        elif paso == "menus_llm":
+            from . import menus_llm
+            r = menus_llm.generar()
+            for fid, props in r.items():
+                for p in props:
+                    print(f"{fid} · {p['titulo']}: {', '.join(p['platillos'])} · ${p['costo_semanal']:,.0f}/sem · "
+                          f"{'CABE' if p['cabe'] else 'NO CABE'}{'' if p['composicion_ok'] else ' · composición incompleta'}")
+        elif paso == "dashboard":
+            from . import dashboard
+            ruta = dashboard.construir()
+            print("\nAbre en tu navegador:", ruta)
         elif paso == "estados":
             from .ingest import sniim_estados
             desde = a.desde if a.desde != config.FECHA_INICIO_DEFAULT else sniim_estados.DESDE_DEFAULT

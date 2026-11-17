@@ -1,8 +1,40 @@
 # Insumos para fondas — Capstone CDA I (ITAM, otoño 2026)
 
 Pronóstico de precios de insumos de la Central de Abasto (CDMX) y costeo de menús para
-fondas que van empezando. Este repo cubre el pipeline completo:
-**datos → modelo → dashboard**. Hoy está lista la etapa de **datos**.
+fondas que van empezando. Pipeline completo: **datos → modelo → recomendador → dashboard**.
+
+## Todo en 5 comandos
+
+```bash
+python -m insumos todo --desde 2020-01-01   # datos (SNIIM, pecuarios, Banxico) + panel + costeo
+python -m insumos fondas                     # 4 fondas simuladas valuadas a precio real
+python -m insumos modelo                     # backtest, KPIs y pronóstico a 12 semanas (~3 min)
+python -m insumos menus_llm                  # Claude propone menús; el código los verifica (opcional)
+python -m insumos dashboard                  # app/dashboard.html → ábrelo con doble clic
+```
+
+## Modelo
+
+Gradient boosting global (todos los insumos) con regresión por cuantiles (10/50/90) y
+calibración conformal del intervalo. Objetivo: cambio en log-precio a h semanas. Backtest con
+origen móvil (18 meses, reentreno trimestral) contra ingenuo, ingenuo estacional, media móvil y
+el método **Theta** (ganador de la competencia M3). Resultados en `reports/modelo.md`.
+
+## Recomendador de menús
+
+1. Recuperación: platillos de la fonda + recetario de su tipo de cocina.
+2. El **código** costea cada platillo con el pronóstico (el LLM no hace cuentas).
+3. **Claude** propone 3 menús en JSON (ids + razón), con prompting sobre ese contexto.
+4. El **código** recalcula el costo semanal y descarta lo que no cabe en el presupuesto.
+El dashboard además trae un optimizador que prueba todas las combinaciones en vivo.
+
+## Dashboard (`app/dashboard.html`)
+
+Un solo archivo, sin servidor: Mi fonda (alertas de qué sube/baja), Precios y pronóstico,
+Mis platillos (costeo, margen y desglose; captura de platillos propios), Armar menú (presupuesto →
+menús que caben; aceptar/rechazar = KPI 3), Compras y gasto (lista para la Central y registro del
+gasto real = KPI 2) y El modelo (KPIs vs baselines, sesgo por grupo, importancia de variables).
+Lo que captura el usuario se guarda en su navegador y se exporta a CSV.
 
 ```
 fuentes públicas ──► bronze (crudo, tal cual llegó)

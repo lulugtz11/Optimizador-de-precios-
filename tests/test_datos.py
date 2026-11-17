@@ -177,3 +177,16 @@ def test_mercado_estado():
 
     assert _mercado_estado("DF: Central de Abasto de Iztapalapa DF")[1] == "Ciudad de México"
     assert _mercado_estado("Jalisco: Mercado de Abasto de Guadalajara")[1] == "Jalisco"
+
+
+def test_llm_parsea_y_verifica_sin_confiar_en_el_llm():
+    from insumos.menus_llm import parsear, verificar
+
+    texto = 'Claro:\n[{"titulo": "Semana verde", "platillos": ["a", "b", "zzz"], "razon": "Baja el tomate."}]'
+    props = parsear(texto)
+    cat = {"a": {"tiempo": "plato_fuerte", "costo_proyectado": 20.0}, "b": {"tiempo": "bebida", "costo_proyectado": 2.0}}
+    v = verificar(props, cat, {"plato_fuerte": 1, "bebida": 1}, presupuesto=10_000, comensales=50, merma=0.1)[0]
+    assert v["ids_invalidos"] == ["zzz"] and v["composicion_ok"]
+    assert abs(v["costo_semanal"] - 22 * 1.1 * 50 * 6) < 1e-6 and v["cabe"]
+    v2 = verificar(props, cat, {"plato_fuerte": 1, "bebida": 1}, presupuesto=1_000, comensales=50, merma=0.1)[0]
+    assert not v2["cabe"]

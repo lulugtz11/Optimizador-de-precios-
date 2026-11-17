@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Predicción de insumos para fondas · CDMX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#03264f; --navy-2:#173b66; --cream:#faf2e7; --card:#fffdf9; --line:#e9e1d3; --grid:#efe8dc;
+  --coral:#f64357; --coral-ink:#c4223a; --green:#6ba956; --green-ink:#3d7a2a; --amber:#fbb02d; --amber-ink:#9a6400;
+  --brown:#5b4a3f; --ink:#0f1d2e; --ink-2:#4a5565; --muted:#7c8592; --gray:#9aa3ad;
+  --head:"Oswald","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font:15px/1.45 var(--body)}
+.stripe{position:fixed;left:0;top:0;bottom:0;width:10px;display:flex;flex-direction:column;z-index:5}
+.stripe i{flex:1}.stripe i:nth-child(1){background:var(--coral)}.stripe i:nth-child(2){background:var(--green)}
+.stripe i:nth-child(3){background:var(--amber)}.stripe i:nth-child(4){background:var(--brown)}
+header{background:var(--navy);color:#fff;padding:18px 28px 0 38px}
+header h1{font:700 30px/1.05 var(--head);letter-spacing:.5px;margin:0;text-transform:uppercase}
+header h1 span{color:var(--amber)}
+header .sub{color:#c9d3e0;margin:6px 0 14px;font-size:14px}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{font:600 14px var(--body);background:transparent;color:#c9d3e0;border:0;border-bottom:3px solid transparent;padding:10px 14px;cursor:pointer}
+nav button:hover{color:#fff}
+nav button[aria-selected=true]{color:#fff;border-bottom-color:var(--amber)}
+.filtros{display:flex;gap:18px;flex-wrap:wrap;align-items:end;padding:14px 28px 14px 38px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:4}
+.filtros label{display:flex;flex-direction:column;font-size:12px;color:var(--ink-2);gap:4px;font-weight:600}
+select,input[type=number],input[type=text],input[type=date]{font:14px var(--body);padding:7px 9px;border:1px solid #d6ccbb;border-radius:8px;background:#fff;color:var(--ink);min-width:0}
+.seg{display:inline-flex;border:1px solid #d6ccbb;border-radius:8px;overflow:hidden;background:#fff}
+.seg button{border:0;background:#fff;padding:7px 12px;font:600 13px var(--body);color:var(--ink-2);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--navy);color:#fff}
+main{padding:22px 28px 60px 38px;max-width:1280px}
+section[hidden]{display:none}
+h2{font:700 22px var(--head);text-transform:uppercase;color:var(--navy);margin:4px 0 4px;letter-spacing:.3px}
+h3{font:600 16px var(--body);margin:0 0 8px;color:var(--navy)}
+.lead{color:var(--ink-2);margin:0 0 16px;max-width:860px}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.tile .lab{font-size:13px;color:var(--ink-2)}
+.tile .val{font:600 30px/1.15 var(--body);margin:4px 0 2px;color:var(--ink)}
+.tile .del{font-size:13px;font-weight:600}
+.up{color:var(--coral-ink)} .down{color:var(--green-ink)} .flat{color:var(--muted)}
+.hero{background:var(--navy);color:#fff;border:0}
+.hero .val{font:700 64px/1 var(--head);color:var(--amber)}
+.hero .lab{color:#c9d3e0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font:600 12px var(--body);color:var(--ink-2);text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px;border-bottom:1px solid var(--grid);vertical-align:middle}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.click{cursor:pointer}tr.click:hover{background:#f6efe2}tr.sel{background:#f1e8d8}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:#efe8dc;color:var(--ink-2)}
+.pill.real{background:#e4efdf;color:var(--green-ink)} .pill.base{background:#f3eadb;color:var(--amber-ink)}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--grid)}
+.alert:last-child{border-bottom:0}
+.ico{font-weight:700;width:22px;text-align:center}
+.btn{font:600 14px var(--body);border-radius:9px;border:1px solid var(--navy);background:var(--navy);color:#fff;padding:8px 14px;cursor:pointer}
+.btn.sec{background:#fff;color:var(--navy)} .btn.ok{background:var(--green-ink);border-color:var(--green-ink)}
+.btn.no{background:#fff;color:var(--coral-ink);border-color:var(--coral-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.opcion{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--card)}
+.opcion.activa{outline:3px solid var(--amber)}
+.opcion h4{font:700 17px var(--head);text-transform:uppercase;margin:0 0 6px;color:var(--navy)}
+.platos{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.chip{font-size:13px;background:#f3ecdf;border-radius:8px;padding:3px 9px}
+.chip b{font-weight:600;color:var(--ink-2);margin-right:4px;font-size:11px;text-transform:uppercase}
+.meter{height:10px;border-radius:6px;background:#e6edf5;position:relative;overflow:hidden;margin:6px 0 4px}
+.meter i{position:absolute;left:0;top:0;bottom:0;background:var(--navy);border-radius:6px}
+.meter u{position:absolute;top:0;bottom:0;background:var(--amber);opacity:.55}
+.small{font-size:12.5px;color:var(--ink-2)}
+.muted{color:var(--muted)}
+.ok-t{color:var(--green-ink);font-weight:600}.no-t{color:var(--coral-ink);font-weight:600}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto}
+.tip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;box-shadow:0 4px 16px rgba(3,38,79,.12);white-space:nowrap;display:none;z-index:3}
+.tip .v{font-weight:700;font-size:15px}
+.tip .k{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:6px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);margin:4px 0 6px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:16px;height:3px;border-radius:2px}
+.legend i.box{height:10px;width:12px;border-radius:3px}
+.checks{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px}
+.checks label{display:inline-flex;gap:5px;align-items:center;font-weight:400;color:var(--ink);flex-direction:row}
+details{margin-top:8px} summary{cursor:pointer;color:var(--navy);font-weight:600;font-size:14px}
+.ingrow{display:grid;grid-template-columns:1fr 110px 36px;gap:6px;margin-bottom:6px}
+.note{background:#f3ecdf;border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink-2)}
+footer{color:var(--muted);font-size:12px;padding:0 38px 30px}
+@media print{header nav,.filtros,.noprint,.stripe{display:none!important}body{background:#fff}.card{border:0}}
+</style>
+</head>
+<body>
+<div class="stripe" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<header>
+  <h1>Predicción de insumos <span>·</span> fondas CDMX</h1>
+  <p class="sub" id="sub"></p>
+  <nav role="tablist" id="tabs">
+    <button role="tab" data-tab="inicio" aria-selected="true">Mi fonda</button>
+    <button role="tab" data-tab="precios">Precios y pronóstico</button>
+    <button role="tab" data-tab="platillos">Mis platillos</button>
+    <button role="tab" data-tab="menu">Armar menú</button>
+    <button role="tab" data-tab="compras">Compras y gasto</button>
+    <button role="tab" data-tab="modelo">El modelo</button>
+  </nav>
+</header>
+<div class="filtros">
+  <label>Fonda<select id="f-fonda"></select></label>
+  <label>Planeo para dentro de
+    <span class="seg" id="f-h">
+      <button data-h="1">1 sem</button><button data-h="4">1 mes</button><button data-h="8">2 meses</button><button data-h="12">3 meses</button>
+    </span>
+  </label>
+  <span class="small" id="f-nota"></span>
+</div>
+<main>
+  <section id="tab-inicio"></section>
+  <section id="tab-precios" hidden></section>
+  <section id="tab-platillos" hidden></section>
+  <section id="tab-menu" hidden></section>
+  <section id="tab-compras" hidden></section>
+  <section id="tab-modelo" hidden></section>
+</main>
+<footer id="pie"></footer>
+<script id="data" type="application/json">__DATA_JSON__</script>
+<script>
+"use strict";
+const D = JSON.parse(document.getElementById("data").textContent);
+const INS = Object.fromEntries(D.insumos.map(i => [i.id, i]));
+const S = { fonda: D.fondas[0] ? D.fondas[0].id : "nueva", h: 8, insumo: "jitomate", platillo: null };
+const TIEMPOS = { entrada: "Entrada", plato_fuerte: "Plato fuerte", guarnicion: "Guarnición", bebida: "Bebida" };
+const PROTE = { pollo_pierna_muslo: "pollo", pechuga_pollo: "pollo", res_bistec: "res", res_molida: "res", cerdo: "cerdo", huevo: "huevo", queso_fresco: "queso" };
+
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+function el(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") e.className = v; else if (k === "on") for (const [ev, f] of Object.entries(v)) e.addEventListener(ev, f);
+    else if (v !== null && v !== undefined && v !== false) e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat()) if (c !== null && c !== undefined && c !== false) e.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  return e;
+}
+const fmt$ = (x, d = 2) => x == null || isNaN(x) ? "—" : "$" + x.toLocaleString("es-MX", { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmtP = (x, d = 0) => x == null || isNaN(x) ? "—" : (x > 0 ? "+" : "") + x.toFixed(d) + "%";
+const hLabel = h => ({ 1: "1 semana", 4: "1 mes", 8: "2 meses", 12: "3 meses" })[h] || h + " semanas";
+function clave(k) { return "fondas:" + S.fonda + ":" + k; }
+function leer(k, def) { try { const v = localStorage.getItem(clave(k)); return v ? JSON.parse(v) : def; } catch (e) { return def; } }
+function guardar(k, v) { try { localStorage.setItem(clave(k), JSON.stringify(v)); } catch (e) {} }
+function descargarCSV(nombre, filas) {
+  const esc = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const blob = new Blob(["﻿" + filas.map(r => r.map(esc).join(",")).join("\n")], { type: "text/csv" });
+  const a = el("a", { href: URL.createObjectURL(blob), download: nombre }); document.body.append(a); a.click(); a.remove();
+}
+
+/* ---------- precios ---------- */
+function precio(id, h, q = 2) { const i = INS[id]; if (!i) return NaN; if (!h) return i.actual; const p = i.pron[Math.min(h, 12) - 1]; return p ? p[q] : i.actual; }
+const lo = (id, h) => precio(id, h, 1), hi = (id, h) => precio(id, h, 3);
+function cambio(id, h) { return 100 * (precio(id, h) / precio(id, 0) - 1); }
+function nombreIns(id) { return INS[id] ? INS[id].nombre : id; }
+
+/* ---------- fonda, platillos y recetas ---------- */
+function fondaActual() {
+  const f = D.fondas.find(x => x.id === S.fonda);
+  if (f) return f;
+  return { id: "nueva", nombre: "Mi fonda nueva", tipo: "comida_corrida", alcaldia: "", comensales: 60, merma: 0.12, presupuesto: 10000, precio_comida: 90, menu: [], recetas: {} };
+}
+function platillosFonda() {
+  const f = fondaActual(), propios = leer("propios", {}), precios = leer("precios", {});
+  const lista = f.menu.map(m => ({ pid: m.pid, nombre: (D.recetario[m.pid] || {}).nombre || m.pid, tiempo: m.tiempo,
+    precio: precios[m.pid] ?? m.precio, pop: m.pop, ing: f.recetas[m.pid] || (D.recetario[m.pid] || {}).ing || [], propio: false }));
+  for (const [pid, p] of Object.entries(propios)) lista.push({ pid, nombre: p.nombre, tiempo: p.tiempo, precio: precios[pid] ?? p.precio, pop: null, ing: p.ing, propio: true });
+  return lista;
+}
+function catalogoCompleto() {
+  const f = fondaActual(), mios = platillosFonda(), ya = new Set(mios.map(p => p.pid));
+  const extra = Object.entries(D.recetario).filter(([pid]) => !ya.has(pid)).map(([pid, r]) => ({ pid, nombre: r.nombre, tiempo: r.tiempo, precio: r.precio_ref, ing: r.ing, propio: false, externo: true }));
+  return mios.concat(extra);
+}
+function costo(ing, h, q = 2) { let t = 0; for (const [id, g] of ing) { const p = precio(id, h, q); if (isNaN(p)) return NaN; t += g / 1000 * p; } return t; }
+
+/* ---------- gráficas (SVG) ---------- */
+const NS = "http://www.w3.org/2000/svg";
+function sv(tag, a = {}) { const e = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(a)) e.setAttribute(k, v); return e; }
+function ticks(min, max, n = 4) {
+  const span = max - min || 1, step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= step0) || step0;
+  const ini = Math.floor(min / step) * step, fin = Math.ceil(max / step - 1e-9) * step, out = [];
+  for (let v = ini; v <= fin + step * 1e-6; v += step) out.push(+v.toFixed(6)); return out;
+}
+function tipBox(cont) { let t = cont.querySelector(".tip"); if (!t) { t = el("div", { class: "tip" }); cont.append(t); } return t; }
+function mostrarTip(cont, x, y, nodos) { const t = tipBox(cont); t.replaceChildren(...nodos); t.style.display = "block"; const w = cont.clientWidth; t.style.left = Math.min(x + 14, w - t.offsetWidth - 4) + "px"; t.style.top = Math.max(0, y - 10) + "px"; }
+function ocultarTip(cont) { const t = cont.querySelector(".tip"); if (t) t.style.display = "none"; }
+
+function graficaPrecio(cont, id, h) {
+  cont.replaceChildren(); cont.classList.add("chart");
+  const ins = INS[id], W = 760, H = 300, m = { l: 52, r: 18, t: 14, b: 30 };
+  const hist = ins.hist.slice(-104).map(([d, v]) => [new Date(d), v]);
+  const last = hist[hist.length - 1][0];
+  const pr = ins.pron.map(([hh, a, b, c]) => [new Date(last.getTime() + hh * 7 * 864e5), a, b, c]);
+  const xs = hist.map(d => d[0]).concat(pr.map(d => d[0]));
+  const ys = hist.map(d => d[1]).concat(pr.flatMap(d => [d[1], d[3]]));
+  const x0 = xs[0], x1 = xs[xs.length - 1], yt = ticks(Math.min(...ys) * 0.95, Math.max(...ys) * 1.03);
+  const X = d => m.l + (d - x0) / (x1 - x0) * (W - m.l - m.r), Y = v => H - m.b - (v - yt[0]) / (yt[yt.length - 1] - yt[0]) * (H - m.t - m.b);
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `Precio de ${ins.nombre}: historia y pronóstico` });
+  for (const v of yt) { svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: "#efe8dc" })); const t = sv("text", { x: m.l - 8, y: Y(v) + 4, "text-anchor": "end", "font-size": 11, fill: "#7c8592" }); t.textContent = "$" + v; svg.append(t); }
+  const meses = []; let prev = -1; for (const d of xs) { const k = d.getFullYear() * 12 + d.getMonth(); if (k !== prev && d.getDate() <= 7 && d.getMonth() % 3 === 0) meses.push(d); prev = k; }
+  for (const d of meses) { const t = sv("text", { x: X(d), y: H - 10, "text-anchor": "middle", "font-size": 11, fill: "#7c8592" }); t.textContent = d.toLocaleDateString("es-MX", { month: "short", year: "2-digit" }); svg.append(t); }
+  svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, stroke: "#c9bfae" }));
+  // banda de pronóstico 80%
+  const band = [[last, hist[hist.length - 1][1], hist[hist.length - 1][1]]].concat(pr.map(d => [d[0], d[1], d[3]]));
+  svg.append(sv("path", { d: "M" + band.map(d => X(d[0]) + "," + Y(d[2])).join("L") + "L" + band.slice().reverse().map(d => X(d[0]) + "," + Y(d[1])).join("L") + "Z", fill: "#fbb02d", opacity: .22 }));
+  svg.append(sv("path", { d: "M" + hist.map(d => X(d[0]) + "," + Y(d[1])).join("L"), fill: "none", stroke: "#03264f", "stroke-width": 2, "stroke-linejoin": "round" }));
+  const pl = [[last, hist[hist.length - 1][1]]].concat(pr.map(d => [d[0], d[2]]));
+  svg.append(sv("path", { d: "M" + pl.map(d => X(d[0]) + "," + Y(d[1])).join("L"), fill: "none", stroke: "#c98500", "stroke-width": 2.5, "stroke-dasharray": "6 4" }));
+  svg.append(sv("line", { x1: X(last), x2: X(last), y1: m.t, y2: H - m.b, stroke: "#c9bfae" }));
+  const hoyT = sv("text", { x: X(last) - 6, y: m.t + 10, "text-anchor": "end", "font-size": 11, fill: "#4a5565" }); hoyT.textContent = "hoy"; svg.append(hoyT);
+  if (h) { const d = pr[h - 1]; svg.append(sv("circle", { cx: X(d[0]), cy: Y(d[2]), r: 5, fill: "#c98500", stroke: "#fffdf9", "stroke-width": 2 })); }
+  svg.append(sv("circle", { cx: X(last), cy: Y(hist[hist.length - 1][1]), r: 5, fill: "#03264f", stroke: "#fffdf9", "stroke-width": 2 }));
+  const cross = sv("line", { y1: m.t, y2: H - m.b, stroke: "#4a5565", "stroke-width": 1, visibility: "hidden" }); svg.append(cross);
+  const hit = sv("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }); svg.append(hit);
+  const puntos = hist.map(d => ({ d: d[0], v: d[1], tipo: "hist" })).concat(pr.map((d, i) => ({ d: d[0], v: d[2], lo: d[1], hi: d[3], tipo: "pron", h: i + 1 })));
+  hit.addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) / r.width * W;
+    let best = puntos[0]; for (const p of puntos) if (Math.abs(X(p.d) - px) < Math.abs(X(best.d) - px)) best = p;
+    cross.setAttribute("x1", X(best.d)); cross.setAttribute("x2", X(best.d)); cross.setAttribute("visibility", "visible");
+    const f = best.d.toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" });
+    const nodos = best.tipo === "hist" ? [el("div", { class: "v" }, fmt$(best.v) + "/kg"), el("div", { class: "small" }, "Semana del " + f + " · observado")]
+      : [el("div", { class: "v" }, fmt$(best.v) + "/kg"), el("div", { class: "small" }, "Pronóstico a " + best.h + " sem (" + f + ")"), el("div", { class: "small" }, "Rango 80%: " + fmt$(best.lo) + " – " + fmt$(best.hi))];
+    mostrarTip(cont, ev.clientX - cont.getBoundingClientRect().left, ev.clientY - cont.getBoundingClientRect().top, nodos);
+  });
+  hit.addEventListener("pointerleave", () => { cross.setAttribute("visibility", "hidden"); ocultarTip(cont); });
+  cont.append(svg);
+  cont.before(el("div", { class: "legend" }, el("span", {}, el("i", { style: "background:#03264f" }), "Precio observado (SNIIM)"),
+    el("span", {}, el("i", { style: "background:#c98500" }), "Pronóstico"), el("span", {}, el("i", { class: "box", style: "background:#fbb02d;opacity:.35" }), "Rango donde cae 8 de cada 10 veces")));
+}
+
+function barrasH(cont, filas, opts = {}) {
+  cont.replaceChildren(); cont.classList.add("chart");
+  const W = 660, fila = 30, m = { l: 200, r: 90, t: 6, b: 6 }, H = m.t + m.b + fila * filas.length;
+  const max = Math.max(...filas.map(f => f.hi ?? f.v)) * 1.05 || 1, X = v => m.l + v / max * (W - m.l - m.r);
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": opts.aria || "Barras", style: `max-width:${W}px` });
+  filas.forEach((f, i) => {
+    const y = m.t + i * fila + 6, h = 18, w = Math.max(2, X(f.v) - m.l);
+    const lab = sv("text", { x: m.l - 8, y: y + 13, "text-anchor": "end", "font-size": 12.5, fill: "#0f1d2e" }); lab.textContent = f.label; svg.append(lab);
+    svg.append(sv("path", { d: `M${m.l},${y}h${w - 4}a4,4 0 0 1 4,4v${h - 8}a4,4 0 0 1 -4,4h-${w - 4}z`, fill: f.color || "#03264f" }));
+    if (f.lo != null) svg.append(sv("line", { x1: X(f.lo), x2: X(f.hi), y1: y + h / 2, y2: y + h / 2, stroke: "#9a6400", "stroke-width": 1.5 }));
+    const val = sv("text", { x: X(f.hi ?? f.v) + 6, y: y + 13, "font-size": 12.5, fill: "#4a5565" }); val.textContent = f.texto || fmt$(f.v); svg.append(val);
+    const hit = sv("rect", { x: 0, y: y - 4, width: W, height: fila, fill: "transparent" });
+    hit.addEventListener("pointermove", ev => { const r = cont.getBoundingClientRect(); mostrarTip(cont, ev.clientX - r.left, ev.clientY - r.top, [el("div", { class: "v" }, f.texto || fmt$(f.v)), el("div", { class: "small" }, f.label), f.extra ? el("div", { class: "small" }, f.extra) : ""]); });
+    hit.addEventListener("pointerleave", () => ocultarTip(cont)); svg.append(hit);
+  });
+  cont.append(svg);
+}
+
+function lineasKPI(cont, series, hs, etiquetaY) {
+  cont.replaceChildren(); cont.classList.add("chart");
+  const W = 620, H = 280, m = { l: 48, r: 110, t: 14, b: 34 };
+  const all = series.flatMap(s => s.v), yt = ticks(0, Math.max(...all) * 1.08);
+  const X = i => m.l + i / (hs.length - 1) * (W - m.l - m.r), Y = v => H - m.b - (v - yt[0]) / (yt[yt.length - 1] - yt[0]) * (H - m.t - m.b);
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": etiquetaY });
+  for (const v of yt) { svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: "#efe8dc" })); const t = sv("text", { x: m.l - 8, y: Y(v) + 4, "text-anchor": "end", "font-size": 11, fill: "#7c8592" }); t.textContent = v + "%"; svg.append(t); }
+  hs.forEach((h, i) => { const t = sv("text", { x: X(i), y: H - 12, "text-anchor": "middle", "font-size": 12, fill: "#4a5565" }); t.textContent = hLabel(h); svg.append(t); });
+  for (const s of series) {
+    svg.append(sv("path", { d: "M" + s.v.map((v, i) => X(i) + "," + Y(v)).join("L"), fill: "none", stroke: s.color, "stroke-width": s.w || 2, "stroke-linejoin": "round" }));
+    s.v.forEach((v, i) => svg.append(sv("circle", { cx: X(i), cy: Y(v), r: 4.5, fill: s.color, stroke: "#fffdf9", "stroke-width": 2 })));
+    if (s.w) { const t = sv("text", { x: X(hs.length - 1) + 10, y: Y(s.v[s.v.length - 1]) + 4, "font-size": 12.5, fill: "#0f1d2e", "font-weight": 700 }); t.textContent = s.nombre + " " + s.v[s.v.length - 1].toFixed(1) + "%"; svg.append(t); }
+  }
+  const cross = sv("line", { y1: m.t, y2: H - m.b, stroke: "#4a5565", visibility: "hidden" }); svg.append(cross);
+  const hit = sv("rect", { x: m.l - 20, y: m.t, width: W - m.l - m.r + 40, height: H - m.t - m.b, fill: "transparent" }); svg.append(hit);
+  hit.addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) / r.width * W; let i = 0; hs.forEach((_, j) => { if (Math.abs(X(j) - px) < Math.abs(X(i) - px)) i = j; });
+    cross.setAttribute("x1", X(i)); cross.setAttribute("x2", X(i)); cross.setAttribute("visibility", "visible");
+    const c = cont.getBoundingClientRect();
+    mostrarTip(cont, ev.clientX - c.left, ev.clientY - c.top, [el("div", { class: "small" }, "Pronóstico a " + hLabel(hs[i]))].concat(series.map(s => el("div", {}, el("span", { class: "k", style: "background:" + s.color }), el("b", {}, s.v[i].toFixed(1) + "% "), s.nombre))));
+  });
+  hit.addEventListener("pointerleave", () => { cross.setAttribute("visibility", "hidden"); ocultarTip(cont); });
+  cont.append(svg);
+}
+
+function columnasKPI2(cont, hs, base, mod) {
+  cont.replaceChildren(); cont.classList.add("chart");
+  const W = 620, H = 270, m = { l: 44, r: 10, t: 22, b: 52 }, yt = ticks(0, Math.max(...base) * 1.12);
+  const banda = (W - m.l - m.r) / hs.length, bw = 22, Y = v => H - m.b - v / yt[yt.length - 1] * (H - m.t - m.b);
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Error del costo del menú" });
+  for (const v of yt) { svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: "#efe8dc" })); const t = sv("text", { x: m.l - 8, y: Y(v) + 4, "text-anchor": "end", "font-size": 11, fill: "#7c8592" }); t.textContent = v + "%"; svg.append(t); }
+  hs.forEach((h, i) => {
+    const cx = m.l + banda * i + banda / 2;
+    [[base[i], "#9aa3ad", -bw / 2 - 4], [mod[i], "#03264f", bw / 2 + 4]].forEach(([v, c, dx]) => {
+      const x = cx + dx - bw / 2, y = Y(v), hgt = H - m.b - y;
+      svg.append(sv("path", { d: `M${x},${H - m.b}v-${hgt - 4}a4,4 0 0 1 4,-4h${bw - 8}a4,4 0 0 1 4,4v${hgt - 4}z`, fill: c }));
+      const t = sv("text", { x: x + bw / 2, y: y - 5, "text-anchor": "middle", "font-size": 10.5, fill: "#0f1d2e" }); t.textContent = v.toFixed(1) + "%"; svg.append(t);
+    });
+    const t = sv("text", { x: cx, y: H - m.b + 18, "text-anchor": "middle", "font-size": 12, fill: "#4a5565" }); t.textContent = hLabel(h); svg.append(t);
+    const r = sv("text", { x: cx, y: H - m.b + 36, "text-anchor": "middle", "font-size": 12, "font-weight": 700, fill: "#3d7a2a" }); r.textContent = "▼ " + (100 * (1 - mod[i] / base[i])).toFixed(0) + "%"; svg.append(r);
+  });
+  svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, stroke: "#c9bfae" }));
+  cont.append(svg);
+}
+
+function sparkline(id) {
+  const ins = INS[id], W = 120, H = 30, hist = ins.hist.slice(-26).map(d => d[1]), pr = ins.pron.map(d => d[2]);
+  const all = hist.concat(pr), mn = Math.min(...all), mx = Math.max(...all), n = all.length;
+  const X = i => i / (n - 1) * (W - 4) + 2, Y = v => H - 3 - (v - mn) / ((mx - mn) || 1) * (H - 6);
+  const s = sv("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, "aria-hidden": "true" });
+  s.append(sv("path", { d: "M" + hist.map((v, i) => X(i) + "," + Y(v)).join("L"), fill: "none", stroke: "#03264f", "stroke-width": 1.6 }));
+  s.append(sv("path", { d: "M" + [hist[hist.length - 1]].concat(pr).map((v, i) => X(i + hist.length - 1) + "," + Y(v)).join("L"), fill: "none", stroke: "#c98500", "stroke-width": 1.6, "stroke-dasharray": "3 2" }));
+  return s;
+}
+
+function flecha(pct) {
+  if (Math.abs(pct) < 2) return el("span", { class: "flat" }, "● " + fmtP(pct));
+  return pct > 0 ? el("span", { class: "up" }, "▲ " + fmtP(pct)) : el("span", { class: "down" }, "▼ " + fmtP(pct));
+}
+
+/* ---------- 1. Mi fonda ---------- */
+function renderInicio() {
+  const sec = $("#tab-inicio"), f = fondaActual(), h = S.h, pls = platillosFonda();
+  const usados = [...new Set(pls.flatMap(p => p.ing.map(x => x[0])))].filter(id => INS[id]);
+  const cHoy = pls.map(p => costo(p.ing, 0)), cH = pls.map(p => costo(p.ing, h));
+  const prom = a => a.filter(x => !isNaN(x)).reduce((s, x) => s + x, 0) / Math.max(1, a.filter(x => !isNaN(x)).length);
+  const margen = (c) => prom(pls.map((p, i) => p.precio ? 100 * (1 - c[i] / p.precio) : NaN));
+  const fb = leer("feedback", []), acept = fb.filter(x => x.ok).length;
+  const tiles = el("div", { class: "grid g4" },
+    tile("Presupuesto semanal de compras", fmt$(f.presupuesto, 0), el("span", { class: "flat" }, f.comensales + " comensales al día")),
+    tile("Costo promedio por platillo", fmt$(prom(cH)), el("span", {}, "hoy " + fmt$(prom(cHoy)) + " · ", flecha(100 * (prom(cH) / prom(cHoy) - 1)), " en " + hLabel(h))),
+    tile("Margen promedio por platillo", margen(cH).toFixed(1) + "%", el("span", { class: "flat" }, "hoy " + margen(cHoy).toFixed(1) + "% · en " + hLabel(h))),
+    tile("Menús sugeridos aceptados (KPI 3)", fb.length ? Math.round(100 * acept / fb.length) + "%" : "—", el("span", { class: "flat" }, fb.length ? acept + " de " + fb.length + " respuestas" : "aún sin respuestas"))
+  );
+  const orden = usados.map(id => ({ id, c: cambio(id, h) })).sort((a, b) => b.c - a.c);
+  const alerta = (o, sube) => el("div", { class: "alert" }, el("span", { class: "ico " + (sube ? "up" : "down") }, sube ? "▲" : "▼"),
+    el("div", {}, el("b", {}, nombreIns(o.id) + ": "), fmt$(precio(o.id, 0)) + " → " + fmt$(precio(o.id, h)) + "/kg ", el("b", { class: sube ? "up" : "down" }, "(" + fmtP(o.c) + ")"),
+      el("div", { class: "small" }, "Rango 80%: " + fmt$(lo(o.id, h)) + " – " + fmt$(hi(o.id, h)) + (INS[o.id].modelado ? "" : " · precio base × inflación"))));
+  const sube = orden.filter(o => o.c > 2).slice(0, 5), baja = orden.filter(o => o.c < -2).slice(-5).reverse();
+  const afect = pls.map((p, i) => ({ p, d: 100 * (cH[i] / cHoy[i] - 1), dif: cH[i] - cHoy[i] })).filter(x => !isNaN(x.d)).sort((a, b) => b.d - a.d);
+  sec.replaceChildren(
+    el("h2", {}, f.nombre), el("p", { class: "lead" }, [f.tipo.replace("_", " "), f.alcaldia].filter(Boolean).join(" · ") + ". Todo se calcula con precios reales de la Central de Abasto de la CDMX (SNIIM) y el pronóstico del modelo a " + hLabel(h) + "."),
+    tiles,
+    el("div", { class: "grid g2", style: "margin-top:16px" },
+      el("div", { class: "card" }, el("h3", {}, "Lo que va a subir en " + hLabel(h)), el("p", { class: "small" }, "Insumos de tus platillos. Considera comprar antes o cambiar el platillo."), sube.length ? sube.map(o => alerta(o, true)) : el("p", { class: "muted" }, "Nada sube más de 2%.")),
+      el("div", { class: "card" }, el("h3", {}, "Lo que va a bajar en " + hLabel(h)), el("p", { class: "small" }, "Buen momento para meterlos al menú."), baja.length ? baja.map(o => alerta(o, false)) : el("p", { class: "muted" }, "Nada baja más de 2%."))),
+    el("div", { class: "card", style: "margin-top:16px" }, el("h3", {}, "Platillos que más cambian de costo"),
+      el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Platillo"), el("th", { class: "n" }, "Costo hoy"), el("th", { class: "n" }, "En " + hLabel(h)), el("th", { class: "n" }, "Cambio"), el("th", { class: "n" }, "Precio de venta"))),
+        el("tbody", {}, afect.slice(0, 6).map(x => el("tr", {}, el("td", {}, x.p.nombre), el("td", { class: "n" }, fmt$(costo(x.p.ing, 0))), el("td", { class: "n" }, fmt$(costo(x.p.ing, h))), el("td", { class: "n" }, flecha(x.d)), el("td", { class: "n" }, fmt$(x.p.precio, 0)))))))
+  );
+  function tile(lab, val, del) { return el("div", { class: "card tile" }, el("div", { class: "lab" }, lab), el("div", { class: "val" }, val), el("div", { class: "del" }, del)); }
+}
+
+/* ---------- 2. Precios ---------- */
+function renderPrecios() {
+  const sec = $("#tab-precios"), h = S.h;
+  const filas = D.insumos.slice().sort((a, b) => (b.modelado - a.modelado) || a.nombre.localeCompare(b.nombre));
+  if (!INS[S.insumo]) S.insumo = filas[0].id;
+  const graf = el("div"), titulo = el("h3"), resumen = el("p", { class: "small" });
+  function pintar() {
+    const i = INS[S.insumo]; titulo.textContent = i.nombre + " · $/kg";
+    resumen.replaceChildren("Hoy " + fmt$(i.actual) + "/kg. En " + hLabel(h) + ": " + fmt$(precio(i.id, h)) + " (", flecha(cambio(i.id, h)), "), rango 80% " + fmt$(lo(i.id, h)) + " – " + fmt$(hi(i.id, h)) + ". Fuente: " + i.fuente + (i.modelado ? "" : " — no se pronostica; se proyecta con su último precio."));
+    graficaPrecio(graf, i.id, i.modelado ? h : 0);
+    tbody.querySelectorAll("tr").forEach(tr => tr.classList.toggle("sel", tr.dataset.id === S.insumo));
+  }
+  const tbody = el("tbody", {}, filas.map(i => el("tr", { class: "click", "data-id": i.id, tabindex: 0, on: { click: () => { S.insumo = i.id; pintar(); }, keydown: e => { if (e.key === "Enter") { S.insumo = i.id; pintar(); } } } },
+    el("td", {}, i.nombre), el("td", {}, el("span", { class: "pill " + (i.modelado ? "real" : "base") }, i.modelado ? "pronóstico" : "base×INPC")),
+    el("td", { class: "n" }, fmt$(i.actual)), el("td", { class: "n" }, fmt$(precio(i.id, h))), el("td", { class: "n" }, flecha(cambio(i.id, h))),
+    el("td", { class: "n small" }, i.modelado ? fmt$(lo(i.id, h)) + " – " + fmt$(hi(i.id, h)) : "—"), el("td", {}, sparkline(i.id)))));
+  // ranking por costo unitario (E1)
+  const pls = catalogoCompleto().filter(p => !isNaN(costo(p.ing, h))).map(p => ({ p, c: costo(p.ing, h), lo: costo(p.ing, h, 1), hi: costo(p.ing, h, 3) })).sort((a, b) => a.c - b.c);
+  const rank = el("div");
+  sec.replaceChildren(
+    el("h2", {}, "Precios y pronóstico"), el("p", { class: "lead" }, "Precio por kilo en la Central de Abasto de Iztapalapa y lo que esperamos en " + hLabel(h) + ". Da clic en un insumo para ver su historia y su pronóstico."),
+    el("div", { class: "card" }, titulo, resumen, graf),
+    el("div", { class: "grid g2", style: "margin-top:16px" },
+      el("div", { class: "card" }, el("h3", {}, "Todos los insumos"), el("div", { style: "max-height:520px;overflow:auto" },
+        el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Insumo"), el("th", {}, "Fuente"), el("th", { class: "n" }, "Hoy"), el("th", { class: "n" }, hLabel(h)), el("th", { class: "n" }, "Cambio"), el("th", { class: "n" }, "Rango 80%"), el("th", {}, "Tendencia"))), tbody))),
+      el("div", { class: "card" }, el("h3", {}, "Ranking: platillos más baratos de hacer en " + hLabel(h)), el("p", { class: "small" }, "Costo de insumos por porción, del más barato al más caro (la raya es el rango 80%)."), rank))
+  );
+  barrasH(rank, pls.slice(0, 14).map(x => ({ label: x.p.nombre, v: x.c, lo: x.lo, hi: x.hi, extra: "Rango " + fmt$(x.lo) + " – " + fmt$(x.hi) })), { aria: "Ranking de costo por porción" });
+  pintar();
+}
+
+/* ---------- 3. Mis platillos ---------- */
+function renderPlatillos() {
+  const sec = $("#tab-platillos"), h = S.h, f = fondaActual(), pls = platillosFonda();
+  const precios = leer("precios", {});
+  if (!S.platillo || !pls.find(p => p.pid === S.platillo)) S.platillo = pls[0] ? pls[0].pid : null;
+  const desglose = el("div"), tituloD = el("h3"), notaD = el("p", { class: "small" });
+  function pintarDesglose() {
+    const p = pls.find(x => x.pid === S.platillo); if (!p) { tituloD.textContent = "Agrega un platillo"; return; }
+    tituloD.textContent = "¿De qué está hecho el costo de " + p.nombre + "? (en " + hLabel(h) + ")";
+    const filas = p.ing.filter(([id]) => INS[id]).map(([id, g]) => ({ label: nombreIns(id) + " · " + g + " g", v: g / 1000 * precio(id, h), lo: g / 1000 * lo(id, h), hi: g / 1000 * hi(id, h), extra: fmt$(precio(id, h)) + "/kg · " + fmtP(cambio(id, h)) + " vs hoy" })).sort((a, b) => b.v - a.v);
+    barrasH(desglose, filas, { aria: "Desglose de costo" });
+    const top = filas[0]; notaD.textContent = top ? "El ingrediente que más pesa es " + top.label.split(" · ")[0] + " (" + Math.round(100 * top.v / filas.reduce((s, x) => s + x.v, 0)) + "% del costo)." : "";
+    tbody.querySelectorAll("tr").forEach(tr => tr.classList.toggle("sel", tr.dataset.pid === S.platillo));
+  }
+  const tbody = el("tbody", {}, pls.map(p => {
+    const c0 = costo(p.ing, 0), ch = costo(p.ing, h), l = costo(p.ing, h, 1), u = costo(p.ing, h, 3);
+    const inp = el("input", { type: "number", min: 0, step: 5, value: p.precio ?? "", style: "width:80px", "aria-label": "Precio de venta de " + p.nombre,
+      on: { change: e => { const v = parseFloat(e.target.value); const pr = leer("precios", {}); if (isNaN(v)) delete pr[p.pid]; else pr[p.pid] = v; guardar("precios", pr); renderPlatillos(); }, click: e => e.stopPropagation() } });
+    const mg = p.precio ? 100 * (1 - ch / p.precio) : NaN;
+    return el("tr", { class: "click", "data-pid": p.pid, on: { click: () => { S.platillo = p.pid; pintarDesglose(); } } },
+      el("td", {}, p.nombre, p.propio ? el("span", { class: "pill", style: "margin-left:6px" }, "propio") : ""), el("td", { class: "small" }, TIEMPOS[p.tiempo] || p.tiempo),
+      el("td", { class: "n" }, fmt$(c0)), el("td", { class: "n" }, fmt$(ch)), el("td", { class: "n" }, flecha(100 * (ch / c0 - 1))), el("td", { class: "n small" }, fmt$(l) + " – " + fmt$(u)),
+      el("td", { class: "n" }, inp), el("td", { class: "n" }, isNaN(mg) ? "—" : el("span", { class: mg < 55 ? "up" : "" }, mg.toFixed(0) + "%")));
+  }));
+  // formulario de platillo propio
+  const nombre = el("input", { type: "text", placeholder: "Ej. Mole de olla", style: "width:220px" });
+  const tiempo = el("select", {}, Object.entries(TIEMPOS).map(([k, v]) => el("option", { value: k }, v)));
+  const pv = el("input", { type: "number", min: 0, step: 5, placeholder: "95", style: "width:90px" });
+  const ingBox = el("div");
+  const opciones = () => D.insumos.slice().sort((a, b) => a.nombre.localeCompare(b.nombre)).map(i => el("option", { value: i.id }, i.nombre));
+  const addIng = () => { const s = el("select", {}, opciones()), g = el("input", { type: "number", min: 1, value: 100, "aria-label": "gramos" }); const row = el("div", { class: "ingrow" }, s, g, el("button", { class: "btn sec", type: "button", on: { click: () => row.remove() } }, "×")); ingBox.append(row); };
+  addIng(); addIng();
+  const form = el("details", {}, el("summary", {}, "+ Agregar un platillo propio"),
+    el("div", { class: "row", style: "margin:10px 0" }, el("label", {}, "Nombre", nombre), el("label", {}, "Tiempo", tiempo), el("label", {}, "Precio de venta", pv)),
+    el("div", { class: "small", style: "margin-bottom:6px" }, "Ingredientes y gramos por porción:"), ingBox,
+    el("div", { class: "row" }, el("button", { class: "btn sec", type: "button", on: { click: addIng } }, "+ ingrediente"),
+      el("button", { class: "btn", type: "button", on: { click: () => {
+        const ing = [...ingBox.querySelectorAll(".ingrow")].map(r => [r.children[0].value, parseFloat(r.children[1].value)]).filter(x => x[1] > 0);
+        if (!nombre.value.trim() || !ing.length) { alerta.textContent = "Ponle nombre y al menos un ingrediente."; return; }
+        const prop = leer("propios", {}), pid = "propio_" + Date.now(); prop[pid] = { nombre: nombre.value.trim(), tiempo: tiempo.value, precio: parseFloat(pv.value) || null, ing };
+        guardar("propios", prop); S.platillo = pid; renderPlatillos();
+      } } }, "Guardar platillo")));
+  const alerta = el("p", { class: "no-t small" });
+  sec.replaceChildren(
+    el("h2", {}, "Mis platillos"), el("p", { class: "lead" }, "Costo de insumos por porción hoy y en " + hLabel(h) + ", con su rango. Cambia tu precio de venta para ver tu margen. El costo lo calcula el código con tus gramos; no es una estimación del LLM."),
+    el("div", { class: "card" }, el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Platillo"), el("th", {}, "Tiempo"), el("th", { class: "n" }, "Costo hoy"), el("th", { class: "n" }, "En " + hLabel(h)), el("th", { class: "n" }, "Cambio"), el("th", { class: "n" }, "Rango 80%"), el("th", { class: "n" }, "Precio venta"), el("th", { class: "n" }, "Margen"))), tbody),
+      el("p", { class: "small" }, "Margen = 1 − costo de insumos ÷ precio de venta. En rojo, debajo de 55% (insumos arriba de ~45% del precio)."), form, alerta),
+    el("div", { class: "card", style: "margin-top:16px" }, tituloD, notaD, desglose));
+  pintarDesglose();
+}
+
+/* ---------- 4. Armar menú ---------- */
+function combinaciones(arr, k) { const out = []; const rec = (i, acc) => { if (acc.length === k) { out.push(acc.slice()); return; } for (let j = i; j < arr.length; j++) { acc.push(arr[j]); rec(j + 1, acc); acc.pop(); } }; if (k <= 0) return [[]]; rec(0, []); return out; }
+function evaluarMenu(sel, p) {
+  const h = S.h, porT = {};
+  for (const x of sel) (porT[x.tiempo] = porT[x.tiempo] || []).push(x);
+  const prom = (lst, q) => lst.reduce((s, x) => s + costo(x.ing, h, q), 0) / lst.length;
+  let c = 0, l = 0, u = 0; for (const lst of Object.values(porT)) { c += prom(lst, 2); l += prom(lst, 1); u += prom(lst, 3); }
+  const k = (1 + p.merma) * p.comensales * p.dias;
+  return { costo: c, lo: l, hi: u, semanal: c * k, semanal_lo: l * k, semanal_hi: u * k, margen: p.precio - c * (1 + p.merma) };
+}
+function renderMenu() {
+  const sec = $("#tab-menu"), f = fondaActual(), h = S.h, guard = leer("menu_params", {});
+  const P = Object.assign({ presupuesto: f.presupuesto, comensales: f.comensales, dias: 6, precio: f.precio_comida, merma: f.merma, nf: 3, ne: f.tipo === "comida_corrida" ? 2 : 0, nb: 1, ng: 1, catalogo: "mio", excluir: [] }, guard);
+  const inp = (k, lab, step = 1, w = 100) => el("label", {}, lab, el("input", { type: "number", value: P[k], step, min: 0, style: "width:" + w + "px", on: { change: e => { P[k] = parseFloat(e.target.value) || 0; guardar("menu_params", P); calcular(); } } }));
+  const excl = el("div", { class: "checks" }, ["pollo", "res", "cerdo", "huevo", "queso"].map(k => el("label", {}, el("input", { type: "checkbox", checked: P.excluir.includes(k), on: { change: e => { P.excluir = e.target.checked ? [...new Set(P.excluir.concat(k))] : P.excluir.filter(x => x !== k); guardar("menu_params", P); calcular(); } } }), "sin " + k)));
+  const cat = el("select", { on: { change: e => { P.catalogo = e.target.value; guardar("menu_params", P); calcular(); } } }, el("option", { value: "mio", selected: P.catalogo === "mio" }, "Solo mis platillos"), el("option", { value: "todo", selected: P.catalogo === "todo" }, "Mis platillos + recetario completo"));
+  const salida = el("div", { class: "grid", style: "gap:12px" }), resumen = el("p", { class: "small" });
+  const llmBox = el("div");
+  function calcular() {
+    let base = (P.catalogo === "todo" ? catalogoCompleto() : platillosFonda()).filter(p => !isNaN(costo(p.ing, h)));
+    base = base.filter(p => !p.ing.some(([id]) => P.excluir.includes(PROTE[id])));
+    const T = t => base.filter(p => p.tiempo === t);
+    const F = T("plato_fuerte"), E = T("entrada"), B = T("bebida"), G = T("guarnicion");
+    const nf = Math.min(P.nf, F.length), ne = Math.min(P.ne, E.length), nb = Math.min(P.nb, B.length), ng = Math.min(P.ng, G.length);
+    const cands = [];
+    for (const cf of combinaciones(F, nf)) for (const ce of combinaciones(E, ne)) for (const cb of combinaciones(B, nb)) for (const cg of combinaciones(G, ng)) {
+      if (cands.length > 40000) break;
+      const sel = cf.concat(ce, cb, cg); if (!sel.length) continue;
+      const ev = evaluarMenu(sel, P);
+      const prot = new Set(cf.map(p => p.ing.map(([id]) => PROTE[id]).find(Boolean) || "verdura")).size;
+      const riesgo = (ev.hi - ev.costo) / ev.costo;
+      cands.push({ sel, ev, score: ev.margen * (1 - 0.5 * riesgo) + 3 * prot, prot, riesgo });
+    }
+    const caben = cands.filter(c => c.ev.semanal <= P.presupuesto).sort((a, b) => b.score - a.score);
+    resumen.textContent = cands.length + " combinaciones evaluadas con precios pronosticados a " + hLabel(h) + " · " + caben.length + " caben en el presupuesto" + (cands.length && !caben.length ? ". Sube el presupuesto, baja comensales o quita platillos caros." : ".");
+    const vistos = new Set(), top = [];
+    for (const c of caben) { const k = c.sel.filter(p => p.tiempo === "plato_fuerte").map(p => p.pid).sort().join("|"); if (vistos.has(k)) continue; vistos.add(k); top.push(c); if (top.length === 5) break; }
+    const activo = leer("menu_activo", null);
+    salida.replaceChildren(...top.map((c, i) => tarjeta(c, "Opción " + (i + 1), activo)));
+    pintarLLM();
+  }
+  function tarjeta(c, titulo, activo, extra) {
+    const ids = c.sel.map(p => p.pid), esActivo = activo && activo.ids.join() === ids.join();
+    const usados = [...new Set(c.sel.flatMap(p => p.ing.map(x => x[0])))].filter(id => INS[id] && INS[id].modelado).map(id => ({ id, c: cambio(id, S.h) })).sort((a, b) => b.c - a.c);
+    const ojo = usados[0] && usados[0].c > 5 ? "Ojo: " + nombreIns(usados[0].id) + " sube " + fmtP(usados[0].c) + ". " : "";
+    const bien = usados.length && usados[usados.length - 1].c < -5 ? "Aprovecha: " + nombreIns(usados[usados.length - 1].id) + " baja " + fmtP(usados[usados.length - 1].c) + "." : "";
+    const pres = P.presupuesto, pct = Math.min(100, 100 * c.ev.semanal / pres), pctHi = Math.min(100, 100 * c.ev.semanal_hi / pres);
+    const motivo = el("select", { "aria-label": "Motivo de rechazo" }, ["Muy caro", "No le gusta a mis clientes", "Muy repetitivo", "No sé prepararlo", "Otro"].map(x => el("option", {}, x)));
+    const resp = el("span", { class: "small" });
+    return el("div", { class: "opcion" + (esActivo ? " activa" : "") },
+      el("h4", {}, titulo + (esActivo ? " · menú activo" : "")), extra || "",
+      el("div", { class: "platos" }, c.sel.map(p => el("span", { class: "chip" }, el("b", {}, ({ entrada: "Entrada", plato_fuerte: "Fuerte", guarnicion: "Guarn.", bebida: "Bebida" })[p.tiempo] || ""), p.nombre))),
+      el("div", { class: "grid g4", style: "gap:8px" },
+        el("div", {}, el("div", { class: "small" }, "Costo por comida"), el("b", {}, fmt$(c.ev.costo)), el("div", { class: "small" }, fmt$(c.ev.lo) + " – " + fmt$(c.ev.hi))),
+        el("div", {}, el("div", { class: "small" }, "Margen por comida"), el("b", {}, fmt$(c.ev.margen)), el("div", { class: "small" }, (100 * c.ev.margen / P.precio).toFixed(0) + "% de " + fmt$(P.precio, 0))),
+        el("div", { style: "grid-column:span 2" }, el("div", { class: "small" }, "Compra semanal estimada vs presupuesto"),
+          el("div", { class: "meter", role: "img", "aria-label": "Gasto semanal " + fmt$(c.ev.semanal, 0) + " de " + fmt$(pres, 0) }, el("u", { style: "left:" + pct + "%;width:" + Math.max(0, pctHi - pct) + "%" }), el("i", { style: "width:" + pct + "%" })),
+          el("div", { class: "small" }, fmt$(c.ev.semanal, 0) + " de " + fmt$(pres, 0) + (c.ev.semanal_hi > pres ? " · en el peor caso (" + fmt$(c.ev.semanal_hi, 0) + ") te pasarías" : " · cabe incluso en el peor caso")))),
+      el("p", { class: "small", style: "margin:8px 0" }, ojo + bien),
+      el("div", { class: "row noprint" },
+        el("button", { class: "btn ok", on: { click: () => { guardar("menu_activo", { ids, titulo, h: S.h, fecha: new Date().toISOString().slice(0, 10) }); registrar(true, titulo, ""); calcular(); } } }, "✔ Aceptar"),
+        motivo, el("button", { class: "btn no", on: { click: () => { registrar(false, titulo, motivo.value); resp.textContent = "Gracias, lo tomamos en cuenta."; } } }, "✖ Rechazar"), resp));
+  }
+  function registrar(ok, titulo, motivo) { const fb = leer("feedback", []); fb.push({ fecha: new Date().toISOString(), ok, titulo, motivo, h: S.h }); guardar("feedback", fb); }
+  function pintarLLM() {
+    const prop = (D.menus_llm || {})[f.id];
+    if (!prop || !prop.length) { llmBox.replaceChildren(el("div", { class: "note" }, "Aún no hay menús del LLM para esta fonda. Se generan con ", el("code", {}, "python -m insumos menus_llm"), " (Claude, con las recetas como contexto). El código siempre verifica el costo y descarta los que no caben.")); return; }
+    const todos = catalogoCompleto(), activo = leer("menu_activo", null);
+    const tarjetas = prop.map((m, i) => {
+      const sel = m.platillos.map(pid => todos.find(p => p.pid === pid)).filter(Boolean);
+      if (!sel.length) return null;
+      const ev = evaluarMenu(sel, P), cabe = ev.semanal <= P.presupuesto;
+      const extra = el("div", {}, el("p", { class: "small", style: "margin:0 0 4px" }, m.razon || ""), el("p", { class: cabe ? "ok-t small" : "no-t small", style: "margin:0" }, cabe ? "✔ Verificado por código: cabe en tu presupuesto" : "✖ Descartado por el código: se pasa del presupuesto (" + fmt$(ev.semanal, 0) + ")"));
+      return cabe || true ? tarjeta({ sel, ev }, "Claude · " + (m.titulo || "Propuesta " + (i + 1)), activo, extra) : null;
+    }).filter(Boolean);
+    llmBox.replaceChildren(...tarjetas);
+  }
+  sec.replaceChildren(
+    el("h2", {}, "Arma tu menú de la semana"), el("p", { class: "lead" }, "Pon tu presupuesto y cuántos platillos quieres ofrecer. Probamos todas las combinaciones con los precios pronosticados a " + hLabel(h) + " y te damos las que caben, priorizando margen, variedad y poco riesgo de que suban los precios."),
+    el("div", { class: "card" }, el("div", { class: "row" }, inp("presupuesto", "Presupuesto semanal ($)", 500, 130), inp("comensales", "Comensales al día"), inp("dias", "Días a la semana"), inp("precio", "Precio de tu comida ($)", 5), inp("nf", "Platos fuertes"), inp("ne", "Entradas/sopas"), inp("nb", "Bebidas"), inp("ng", "Guarniciones"), el("label", {}, "Platillos", cat)),
+      el("div", { style: "margin-top:10px" }, excl), resumen),
+    el("h3", { style: "margin:18px 0 8px" }, "Propuestas del optimizador"), salida,
+    el("h3", { style: "margin:22px 0 8px" }, "Propuestas de Claude (LLM + recetas, verificadas por código)"), llmBox);
+  calcular();
+}
+
+/* ---------- 5. Compras y gasto ---------- */
+function renderCompras() {
+  const sec = $("#tab-compras"), f = fondaActual(), h = S.h, activo = leer("menu_activo", null), todos = catalogoCompleto();
+  const P = Object.assign({ comensales: f.comensales, dias: 6, merma: f.merma }, leer("menu_params", {}));
+  let sel = activo ? activo.ids.map(pid => todos.find(p => p.pid === pid)).filter(Boolean) : platillosFonda();
+  const origen = activo ? "tu menú activo (" + activo.titulo + ")" : "todos los platillos de tu menú actual";
+  const porT = {}; for (const p of sel) (porT[p.tiempo] = porT[p.tiempo] || []).push(p);
+  const kg = {};
+  for (const lst of Object.values(porT)) { const porciones = P.comensales * P.dias / lst.length; for (const p of lst) for (const [id, g] of p.ing) kg[id] = (kg[id] || 0) + porciones * g / 1000 * (1 + P.merma); }
+  const filas = Object.entries(kg).filter(([id]) => INS[id]).map(([id, k]) => ({ id, k, c: k * precio(id, h), l: k * lo(id, h), u: k * hi(id, h) })).sort((a, b) => b.c - a.c);
+  const tot = filas.reduce((s, x) => s + x.c, 0), totL = filas.reduce((s, x) => s + x.l, 0), totU = filas.reduce((s, x) => s + x.u, 0);
+  const gastos = leer("gastos", []);
+  const fecha = el("input", { type: "date", value: new Date().toISOString().slice(0, 10) }), real = el("input", { type: "number", min: 0, step: 50, placeholder: Math.round(tot), style: "width:130px" });
+  const msg = el("span", { class: "small" });
+  const kpi = gastos.length ? gastos.reduce((s, g) => s + Math.abs(g.real - g.plan) / g.real, 0) / gastos.length * 100 : null;
+  sec.replaceChildren(
+    el("h2", {}, "Lista de compras y gasto real"),
+    el("p", { class: "lead" }, "Lista para la Central calculada con " + origen + ", " + P.comensales + " comensales × " + P.dias + " días y " + Math.round(P.merma * 100) + "% de merma, a precios esperados en " + hLabel(h) + "."),
+    el("div", { class: "grid g4" },
+      el("div", { class: "card tile" }, el("div", { class: "lab" }, "Gasto esperado de la semana"), el("div", { class: "val" }, fmt$(tot, 0)), el("div", { class: "del flat" }, "rango 80%: " + fmt$(totL, 0) + " – " + fmt$(totU, 0))),
+      el("div", { class: "card tile" }, el("div", { class: "lab" }, "Presupuesto"), el("div", { class: "val" }, fmt$(f.presupuesto, 0)), el("div", { class: "del " + (tot > f.presupuesto ? "up" : "down") }, tot > f.presupuesto ? "▲ te pasas " + fmt$(tot - f.presupuesto, 0) : "▼ te sobran " + fmt$(f.presupuesto - tot, 0))),
+      el("div", { class: "card tile" }, el("div", { class: "lab" }, "Tu error de planeación (KPI 2)"), el("div", { class: "val" }, kpi == null ? "—" : kpi.toFixed(1) + "%"), el("div", { class: "del flat" }, gastos.length ? "promedio de " + gastos.length + " semanas registradas" : "registra tu gasto real abajo"))),
+    el("div", { class: "card", style: "margin-top:16px" }, el("div", { class: "row", style: "justify-content:space-between" }, el("h3", {}, "Lista de compras"),
+      el("div", { class: "row noprint" }, el("button", { class: "btn sec", on: { click: () => window.print() } }, "Imprimir"), el("button", { class: "btn sec", on: { click: () => descargarCSV("lista_compras.csv", [["insumo", "kg", "precio_kg_esperado", "costo_esperado", "costo_min", "costo_max"]].concat(filas.map(x => [nombreIns(x.id), x.k.toFixed(2), precio(x.id, h).toFixed(2), x.c.toFixed(2), x.l.toFixed(2), x.u.toFixed(2)]))) } }, "Descargar CSV"))),
+      el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Insumo"), el("th", { class: "n" }, "Kilos"), el("th", { class: "n" }, "Precio esperado/kg"), el("th", { class: "n" }, "Costo esperado"), el("th", { class: "n" }, "Rango 80%"))),
+        el("tbody", {}, filas.map(x => el("tr", {}, el("td", {}, nombreIns(x.id)), el("td", { class: "n" }, x.k.toFixed(1)), el("td", { class: "n" }, fmt$(precio(x.id, h))), el("td", { class: "n" }, fmt$(x.c, 0)), el("td", { class: "n small" }, INS[x.id].modelado ? fmt$(x.l, 0) + " – " + fmt$(x.u, 0) : "sin pronóstico")))),
+        el("tfoot", {}, el("tr", {}, el("th", {}, "Total"), el("th"), el("th"), el("th", { class: "n" }, fmt$(tot, 0)), el("th", { class: "n" }, fmt$(totL, 0) + " – " + fmt$(totU, 0)))))),
+    el("div", { class: "card", style: "margin-top:16px" }, el("h3", {}, "Registra lo que gastaste de verdad"), el("p", { class: "small" }, "Con esto medimos qué tanto se acerca lo planeado a lo real (KPI 2) y reentrenamos el modelo."),
+      el("div", { class: "row noprint" }, el("label", {}, "Semana de compra", fecha), el("label", {}, "Gasto real ($)", real),
+        el("button", { class: "btn", on: { click: () => { const v = parseFloat(real.value); if (!(v > 0)) { msg.textContent = "Escribe cuánto gastaste."; return; } const g = leer("gastos", []); g.push({ fecha: fecha.value, plan: Math.round(tot), plan_lo: Math.round(totL), plan_hi: Math.round(totU), real: v, menu: activo ? activo.titulo : "menú actual" }); guardar("gastos", g); renderCompras(); } } }, "Guardar"), msg,
+        gastos.length ? el("button", { class: "btn sec", on: { click: () => descargarCSV("gasto_real.csv", [["fecha", "plan", "plan_min", "plan_max", "real", "error_pct", "menu"]].concat(gastos.map(g => [g.fecha, g.plan, g.plan_lo, g.plan_hi, g.real, (100 * (g.real - g.plan) / g.real).toFixed(1), g.menu]))) } }, "Descargar historial") : ""),
+      gastos.length ? el("table", { style: "margin-top:10px" }, el("thead", {}, el("tr", {}, el("th", {}, "Semana"), el("th", { class: "n" }, "Planeado"), el("th", { class: "n" }, "Real"), el("th", { class: "n" }, "Error"), el("th", {}, "¿Dentro del rango?"))),
+        el("tbody", {}, gastos.slice().reverse().map(g => el("tr", {}, el("td", {}, g.fecha), el("td", { class: "n" }, fmt$(g.plan, 0)), el("td", { class: "n" }, fmt$(g.real, 0)), el("td", { class: "n" }, fmtP(100 * (g.real - g.plan) / g.real, 1)),
+          el("td", {}, g.real >= g.plan_lo && g.real <= g.plan_hi ? el("span", { class: "ok-t" }, "✔ sí") : el("span", { class: "no-t" }, "✖ no"))))) ) : ""));
+}
+
+/* ---------- 6. El modelo ---------- */
+const VARS = { z52: "Precio vs su promedio del año", insumo_cod: "Qué producto es", estac_h: "Cómo se movió el año pasado en esas semanas", r52: "Cambio vs hace un año", vs_min13: "Distancia al mínimo de 3 meses", vs_max13: "Distancia al máximo de 3 meses", r1: "Cambio de la última semana", r2: "Cambio de 2 semanas", r4: "Cambio del último mes", r8: "Cambio de 2 meses", r13: "Cambio de 3 meses", r26: "Cambio de 6 meses", vol4: "Volatilidad del último mes", vol13: "Volatilidad de 3 meses", tc_r4: "Tipo de cambio (1 mes)", tc_r13: "Tipo de cambio (3 meses)", inpc_a: "Inflación anual", grupo_cod: "Grupo (verdura, fruta, carne)", sem_sin: "Época del año", sem_cos: "Época del año", dias_con_precio: "Días con cotización", obj_cuaresma: "Cuaresma", obj_semana_santa: "Semana Santa", obj_fiestas_patrias: "Fiestas patrias", obj_muertos: "Día de Muertos", obj_guadalupe_reyes: "Guadalupe-Reyes", obj_sem_sin: "Época del año (objetivo)", obj_sem_cos: "Época del año (objetivo)" };
+function renderModelo() {
+  const sec = $("#tab-modelo"), K = D.kpis, hs = [1, 4, 8, 12];
+  const k1 = K.kpi1_modelo || [], k2 = K.kpi2_modelo || [];
+  const v1 = (m) => hs.map(h => (k1.find(r => r.horizonte_sem === h && r.modelo === m) || {}).wRMSE_pct);
+  const v2 = (m) => hs.map(h => (k2.find(r => r.horizonte_sem === h && r.modelo === m) || {}).MAPE_costo_menu_pct);
+  const cob = hs.map(h => (k1.find(r => r.horizonte_sem === h && r.modelo === "cobertura_intervalo_80") || {}).MAE_pct);
+  const fc = D.food_cost_ref, b2 = v2("precio_de_un_dia"), m2 = v2("modelo");
+  const margen = i => (b2[i] - m2[i]) * fc;
+  const graf1 = el("div"), graf2 = el("div"), grafI = el("div");
+  const sesgo = (K.sesgo || []).filter(r => r.h === 8);
+  sec.replaceChildren(
+    el("h2", {}, "Cómo le va al modelo"),
+    el("p", { class: "lead" }, "Validación fuera de muestra (backtest): simulamos los últimos 18 meses reentrenando cada 3 meses solo con lo que se sabía en ese momento. El modelo es un gradient boosting global con regresión por cuantiles y calibración conformal."),
+    el("div", { class: "grid g4" },
+      el("div", { class: "card tile hero", style: "grid-column:span 2" }, el("div", { class: "lab" }, "Margen que recupera el fondero al planear a 2–3 meses"), el("div", { class: "val" }, "+" + margen(2).toFixed(1) + " a " + margen(3).toFixed(1)), el("div", { class: "lab" }, "puntos de margen por platillo = error del costo que se elimina × " + Math.round(fc * 100) + "% (insumos como parte del precio)")),
+      el("div", { class: "card tile" }, el("div", { class: "lab" }, "Menos error en el costo del menú (KPI 2, 2 meses)"), el("div", { class: "val" }, "−" + (100 * (1 - m2[2] / b2[2])).toFixed(0) + "%"), el("div", { class: "del flat" }, b2[2].toFixed(1) + "% → " + m2[2].toFixed(1) + "% · meta −30%")),
+      el("div", { class: "card tile" }, el("div", { class: "lab" }, "Rango 80% atinado"), el("div", { class: "val" }, (cob.reduce((s, x) => s + x, 0) / cob.length).toFixed(0) + "%"), el("div", { class: "del flat" }, "de las veces el precio real cayó dentro del rango"))),
+    el("div", { class: "grid g2", style: "margin-top:16px" },
+      el("div", { class: "card" }, el("h3", {}, "KPI 1 · Error del pronóstico de precios (wRMSE %)"), el("p", { class: "small" }, "Menos es mejor. Ponderado por el peso de cada insumo en el costo de los menús. Theta es el ganador de la competencia internacional M3."),
+        el("div", { class: "legend" }, el("span", {}, el("i", { style: "background:#03264f" }), "Nuestro modelo"), el("span", {}, el("i", { style: "background:#c98500" }), "Theta (M3)"), el("span", {}, el("i", { style: "background:#9aa3ad" }), "Ingenuo: 'cuesta lo mismo que hoy'")), graf1),
+      el("div", { class: "card" }, el("h3", {}, "KPI 2 · Error del costo del menú (%)"), el("p", { class: "small" }, "Lo que se desvía el costo planeado del real. Gris: lo que hace hoy el fondero (precio de un solo día). Azul: con el pronóstico."),
+        el("div", { class: "legend" }, el("span", {}, el("i", { class: "box", style: "background:#9aa3ad" }), "Precio de un solo día"), el("span", {}, el("i", { class: "box", style: "background:#03264f" }), "Con nuestro pronóstico")), graf2)),
+    el("div", { class: "grid g2", style: "margin-top:16px" },
+      el("div", { class: "card" }, el("h3", {}, "¿A quién le funciona peor? (sesgo, a 2 meses)"), el("p", { class: "small" }, "Error absoluto medio por grupo de insumos, como prometimos en la sección de IA responsable."),
+        el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Grupo"), el("th", { class: "n" }, "Insumos"), el("th", { class: "n" }, "Error ingenuo"), el("th", { class: "n" }, "Error modelo"), el("th", { class: "n" }, "Mejora"))),
+          el("tbody", {}, sesgo.map(r => el("tr", {}, el("td", {}, ({ verdura: "Verduras", fruta: "Frutas", proteina: "Carnes (pollo y res)" })[r.grupo] || r.grupo), el("td", { class: "n" }, r.insumos), el("td", { class: "n" }, r.error_ingenuo.toFixed(1) + "%"), el("td", { class: "n" }, r.error_modelo.toFixed(1) + "%"), el("td", { class: "n" }, flechaMejora(r))))))),
+      el("div", { class: "card" }, el("h3", {}, "¿En qué se fija el modelo? (a 1 mes)"), el("p", { class: "small" }, "Importancia por permutación: cuánto empeora el error si se revuelve esa variable."), grafI)),
+    el("div", { class: "card", style: "margin-top:16px" }, el("h3", {}, "Tabla completa"),
+      el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Horizonte"), el("th", { class: "n" }, "Ingenuo"), el("th", { class: "n" }, "Theta"), el("th", { class: "n" }, "Modelo"), el("th", { class: "n" }, "Mejora KPI 1"), el("th", { class: "n" }, "Costo menú: un día"), el("th", { class: "n" }, "Costo menú: modelo"), el("th", { class: "n" }, "Mejora KPI 2"), el("th", { class: "n" }, "Cobertura 80%"))),
+        el("tbody", {}, hs.map((h, i) => el("tr", {}, el("td", {}, hLabel(h)), el("td", { class: "n" }, v1("ingenuo")[i].toFixed(1) + "%"), el("td", { class: "n" }, v1("theta")[i].toFixed(1) + "%"), el("td", { class: "n" }, el("b", {}, v1("modelo")[i].toFixed(1) + "%")),
+          el("td", { class: "n" }, "−" + (100 * (1 - v1("modelo")[i] / v1("ingenuo")[i])).toFixed(0) + "%"), el("td", { class: "n" }, b2[i].toFixed(1) + "%"), el("td", { class: "n" }, el("b", {}, m2[i].toFixed(1) + "%")), el("td", { class: "n" }, "−" + (100 * (1 - m2[i] / b2[i])).toFixed(0) + "%"), el("td", { class: "n" }, cob[i].toFixed(0) + "%")))))),
+    el("div", { class: "note", style: "margin-top:16px" }, "Datos: SNIIM (Central de Abasto de Iztapalapa: 21 frutas y verduras; centros de distribución de pollo en CDMX; cortes de res), Banxico (tipo de cambio e INPC), Profeco y Walmart para precios base de 9 básicos ajustados por inflación. Fondas simuladas con precios reales. Generado el " + D.generado + ", última semana con datos: " + D.semana_actual + ".")
+  );
+  lineasKPI(graf1, [{ nombre: "Ingenuo", v: v1("ingenuo"), color: "#9aa3ad" }, { nombre: "Theta", v: v1("theta"), color: "#c98500" }, { nombre: "Modelo", v: v1("modelo"), color: "#03264f", w: 3 }], hs, "Error del pronóstico por horizonte");
+  columnasKPI2(graf2, hs, b2, m2);
+  const imp = {}; for (const r of K.importancia || []) { const k = VARS[r.variable] || r.variable; imp[k] = (imp[k] || 0) + r.importancia; }
+  const top = Object.entries(imp).sort((a, b) => b[1] - a[1]).slice(0, 8), tot = top.reduce((s, x) => s + Math.max(0, x[1]), 0) || 1;
+  barrasH(grafI, top.map(([k, v]) => ({ label: k.length > 30 ? k.slice(0, 29) + "…" : k, v: Math.max(0, v) / tot * 100, texto: (Math.max(0, v) / tot * 100).toFixed(0) + "%", extra: k })), { aria: "Importancia de variables" });
+  function flechaMejora(r) { const m = 100 * (1 - r.error_modelo / r.error_ingenuo); return el("span", { class: m >= 0 ? "down" : "up" }, (m >= 0 ? "▼ " : "▲ ") + Math.abs(m).toFixed(0) + "%"); }
+}
+
+/* ---------- navegación ---------- */
+const RENDER = { inicio: renderInicio, precios: renderPrecios, platillos: renderPlatillos, menu: renderMenu, compras: renderCompras, modelo: renderModelo };
+let TAB = "inicio";
+function pintar() { RENDER[TAB](); }
+document.querySelectorAll("#tabs button").forEach(b => b.addEventListener("click", () => {
+  TAB = b.dataset.tab; document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-selected", x === b));
+  document.querySelectorAll("main section").forEach(s => s.hidden = s.id !== "tab-" + TAB); pintar(); window.scrollTo(0, 0);
+}));
+const selF = $("#f-fonda");
+D.fondas.forEach(f => selF.append(el("option", { value: f.id }, f.nombre + " · " + f.alcaldia)));
+selF.append(el("option", { value: "nueva" }, "Mi fonda nueva (captura tus platillos)"));
+selF.addEventListener("change", () => { S.fonda = selF.value; S.platillo = null; pintar(); });
+document.querySelectorAll("#f-h button").forEach(b => { b.setAttribute("aria-pressed", +b.dataset.h === S.h); b.addEventListener("click", () => { S.h = +b.dataset.h; document.querySelectorAll("#f-h button").forEach(x => x.setAttribute("aria-pressed", x === b)); pintar(); }); });
+$("#sub").textContent = "Precios de la Central de Abasto · pronóstico a 12 semanas · semana del " + new Date(D.semana_actual + "T12:00").toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+$("#f-nota").textContent = "Las fondas son simuladas; los precios son reales.";
+$("#pie").textContent = "Capstone CDA I · ITAM · Barba, Reyes, García-Gayou, Gutiérrez, Contreras · Las sugerencias apoyan, no sustituyen, el criterio del fondero.";
+pintar();
+</script>
+</body>
+</html>

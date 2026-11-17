@@ -33,3 +33,6 @@ models/
 *.bundle
 *.xlsx
 reports/
+
+# dashboard generado (trae datos)
+app/dashboard.html
