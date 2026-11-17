@@ -56,7 +56,11 @@ def pesos_insumos(recetas: pd.DataFrame, panel: pd.DataFrame) -> pd.Series:
 
 def costo_semanal(recetas: pd.DataFrame, menus: pd.DataFrame, panel: pd.DataFrame) -> pd.DataFrame:
     precios = panel[["semana", "insumo_id", "precio_kg_imp"]]
-    r = recetas[recetas["ligado"]].merge(precios, on="insumo_id", how="left")
+    # cada ingrediente de cada receta en CADA semana: si un insumo no tiene precio, el platillo
+    # queda sin costo (NaN) en vez de costearse solo con los ingredientes que sí tienen precio
+    semanas = pd.DataFrame({"semana": sorted(panel["semana"].unique())})
+    r = recetas[recetas["ligado"]].merge(semanas, how="cross")
+    r = r.merge(precios, on=["semana", "insumo_id"], how="left")
     r["costo_ing"] = r["gramos_por_porcion"] / 1000 * r["precio_kg_imp"]
     g = r.groupby(["fonda_id", "platillo_id", "semana"]).agg(
         costo_porcion=("costo_ing", lambda s: s.sum(min_count=len(s))),  # NaN si falta algún precio

@@ -106,3 +106,17 @@ def test_periodos_inegi():
 
     assert _periodo("2026/10") == pd.Timestamp("2026-10-01")
     assert _periodo("2026/10/02") == pd.Timestamp("2026-10-16")
+
+
+def test_costeo_no_ignora_ingredientes_sin_precio():
+    from insumos.build.costeo import costo_semanal
+
+    panel = pd.DataFrame({"semana": pd.to_datetime(["2026-11-02", "2026-11-09"]),
+                          "insumo_id": "jitomate", "precio_kg_imp": [20.0, 30.0]})
+    recetas = pd.DataFrame({"fonda_id": "F", "platillo_id": ["a", "a", "b"],
+                            "insumo_id": ["jitomate", "pollo_pierna_muslo", "jitomate"],
+                            "gramos_por_porcion": [100, 200, 100], "ligado": True})
+    menus = pd.DataFrame({"fonda_id": "F", "platillo_id": ["a", "b"], "precio_venta": [90, 30]})
+    c = costo_semanal(recetas, menus, panel).set_index(["platillo_id", "semana"])
+    assert c.loc[("a", pd.Timestamp("2026-11-02")), "costo_porcion"] != c.loc[("a", pd.Timestamp("2026-11-02")), "costo_porcion"]  # NaN
+    assert c.loc[("b", pd.Timestamp("2026-11-09")), "costo_porcion"] == 3.0
