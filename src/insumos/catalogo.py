@@ -22,6 +22,10 @@ def cargar_catalogo() -> pd.DataFrame:
     cat = pd.read_csv(config.CONFIG_DIR / "insumos.csv", dtype=str).fillna("")
     for col in ("precio_min_kg", "precio_max_kg"):
         cat[col] = pd.to_numeric(cat[col], errors="coerce")
+    # convierte el precio que reporta la fuente a $/kg (p. ej. nopal: SNIIM da $/pieza)
+    if "factor_a_kg" not in cat:
+        cat["factor_a_kg"] = 1.0
+    cat["factor_a_kg"] = pd.to_numeric(cat["factor_a_kg"], errors="coerce").fillna(1.0)
     if cat["insumo_id"].duplicated().any():
         dup = cat.loc[cat["insumo_id"].duplicated(), "insumo_id"].tolist()
         raise ValueError(f"insumo_id duplicado en config/insumos.csv: {dup}")

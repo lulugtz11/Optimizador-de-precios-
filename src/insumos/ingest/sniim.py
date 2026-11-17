@@ -282,6 +282,9 @@ def construir_silver() -> pd.DataFrame:
 
     # Calidad: duplicados y precios fuera de rango plausible
     df = df.drop_duplicates(subset=["insumo_id", "fecha", "presentacion", "origen", "precio_frec"])
+    factor = df["insumo_id"].map(catalogo["factor_a_kg"]).fillna(1.0)
+    for c in ("precio_min", "precio_max", "precio_frec"):
+        df[c] = df[c] * factor
     lo = df["insumo_id"].map(catalogo["precio_min_kg"])
     hi = df["insumo_id"].map(catalogo["precio_max_kg"])
     df["fuera_de_rango"] = (df["precio_frec"] < lo) | (df["precio_frec"] > hi)

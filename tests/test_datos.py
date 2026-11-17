@@ -140,3 +140,9 @@ def test_parser_pecuarios_bovino():
     assert set(df["insumo_id"]) <= {"res_bistec", "res_molida"} and len(df) > 0
     primera = df[(df["fecha"] == "2026-10-09") & (df["insumo_id"] == "res_bistec")]
     assert primera["precio_frec"].iloc[0] == 150.0  # Pulpa Bola, solo precio máximo
+
+
+def test_nopal_se_convierte_de_pieza_a_kg():
+    cat = cargar_catalogo().set_index("insumo_id")
+    assert cat.loc["nopal", "factor_a_kg"] == 12.5
+    assert 1.5 * cat.loc["nopal", "factor_a_kg"] >= cat.loc["nopal", "precio_min_kg"]

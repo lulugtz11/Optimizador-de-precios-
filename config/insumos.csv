@@ -1,36 +1,36 @@
-insumo_id,nombre,grupo,fuente,sniim_categoria,patron_sniim,precio_min_kg,precio_max_kg
-jitomate,Jitomate saladette,verdura,sniim,frutas_hortalizas,^tomate saladette - primera,5,90
-tomate_verde,Tomate verde,verdura,sniim,frutas_hortalizas,^tomate verde,4,80
-cebolla,Cebolla blanca,verdura,sniim,frutas_hortalizas,^cebolla bola - primera,4,70
-ajo,Ajo morado,verdura,sniim,frutas_hortalizas,^ajo morado,20,250
-chile_serrano,Chile serrano,verdura,sniim,frutas_hortalizas,^chile serrano,8,150
-chile_jalapeno,Chile jalapeño,verdura,sniim,frutas_hortalizas,^chile jalapeno,6,120
-chile_poblano,Chile poblano,verdura,sniim,frutas_hortalizas,^chile poblano,8,120
-chile_guajillo,Chile guajillo (seco),verdura,sniim,frutas_hortalizas,^chile guajillo,40,400
-papa,Papa,verdura,sniim,frutas_hortalizas,^papa (alpha|blanca),6,70
-zanahoria,Zanahoria,verdura,sniim,frutas_hortalizas,^zanahoria mediana,3,50
-calabacita,Calabacita italiana,verdura,sniim,frutas_hortalizas,^calabacita italiana,4,70
-chayote,Chayote,verdura,sniim,frutas_hortalizas,^chayote sin espinas,3,50
-nopal,Nopal,verdura,sniim,frutas_hortalizas,^nopal grande,3,50
-lechuga,Lechuga romana,verdura,sniim,frutas_hortalizas,^lechuga romanita grande,3,60
-cilantro,Cilantro,verdura,sniim,frutas_hortalizas,^cilantro,3,80
-pepino,Pepino,verdura,sniim,frutas_hortalizas,^pepino,3,50
-ejote,Ejote,verdura,sniim,frutas_hortalizas,^ejote redondo,6,90
-limon,Limón con semilla,fruta,sniim,frutas_hortalizas,^limon c/semilla # 4,5,120
-aguacate,Aguacate Hass,fruta,sniim,frutas_hortalizas,^aguacate hass,15,150
-platano,Plátano Tabasco,fruta,sniim,frutas_hortalizas,^platano tabasco,5,50
-naranja,Naranja Valencia,fruta,sniim,frutas_hortalizas,^naranja valencia mediana,3,40
-arroz,Arroz,grano,manual,,,12,70
-frijol_negro,Frijol negro,grano,manual,,,15,90
-lenteja,Lenteja,grano,manual,,,15,90
-aceite,Aceite vegetal,aceite,manual,,,20,90
-pollo_pierna_muslo,Pierna y muslo de pollo,proteina,sniim_pecuarios,,,35,140
-pechuga_pollo,Pechuga de pollo,proteina,sniim_pecuarios,,,50,220
-res_bistec,Bistec de res,proteina,sniim_pecuarios,,,120,400
-res_molida,Carne molida de res,proteina,sniim_pecuarios,,,90,320
-cerdo,Carne de cerdo (pierna),proteina,manual,,,60,220
-huevo,Huevo blanco,proteina,manual,,,20,80
-queso_fresco,Queso fresco,lacteo,manual,,,60,250
-crema,Crema,lacteo,manual,,,40,150
-tortilla,Tortilla de maíz,basico,manual,,,15,45
-fideo,Fideo,basico,manual,,,25,90
+insumo_id,nombre,grupo,fuente,sniim_categoria,patron_sniim,precio_min_kg,precio_max_kg,factor_a_kg
+jitomate,Jitomate saladette,verdura,sniim,frutas_hortalizas,^tomate saladette - primera,5,90,1
+tomate_verde,Tomate verde,verdura,sniim,frutas_hortalizas,^tomate verde,4,80,1
+cebolla,Cebolla blanca,verdura,sniim,frutas_hortalizas,^cebolla bola - primera,4,70,1
+ajo,Ajo morado,verdura,sniim,frutas_hortalizas,^ajo morado,20,250,1
+chile_serrano,Chile serrano,verdura,sniim,frutas_hortalizas,^chile serrano,8,150,1
+chile_jalapeno,Chile jalapeño,verdura,sniim,frutas_hortalizas,^chile jalapeno,6,120,1
+chile_poblano,Chile poblano,verdura,sniim,frutas_hortalizas,^chile poblano,8,120,1
+chile_guajillo,Chile guajillo (seco),verdura,sniim,frutas_hortalizas,^chile guajillo,40,400,1
+papa,Papa,verdura,sniim,frutas_hortalizas,^papa (alpha|blanca),6,70,1
+zanahoria,Zanahoria,verdura,sniim,frutas_hortalizas,^zanahoria mediana,3,50,1
+calabacita,Calabacita italiana,verdura,sniim,frutas_hortalizas,^calabacita italiana,4,70,1
+chayote,Chayote,verdura,sniim,frutas_hortalizas,^chayote sin espinas,2,50,1
+nopal,Nopal,verdura,sniim,frutas_hortalizas,^nopal grande,3,50,12.5
+lechuga,Lechuga romana,verdura,sniim,frutas_hortalizas,^lechuga romanita grande,3,60,1
+cilantro,Cilantro,verdura,sniim,frutas_hortalizas,^cilantro,3,80,1
+pepino,Pepino,verdura,sniim,frutas_hortalizas,^pepino,3,50,1
+ejote,Ejote,verdura,sniim,frutas_hortalizas,^ejote redondo,6,90,1
+limon,Limón con semilla,fruta,sniim,frutas_hortalizas,^limon c/semilla # 4,5,120,1
+aguacate,Aguacate Hass,fruta,sniim,frutas_hortalizas,^aguacate hass,15,150,1
+platano,Plátano Tabasco,fruta,sniim,frutas_hortalizas,^platano tabasco,3,50,1
+naranja,Naranja Valencia,fruta,sniim,frutas_hortalizas,^naranja valencia mediana,3,40,1
+arroz,Arroz,grano,manual,,,12,70,1
+frijol_negro,Frijol negro,grano,manual,,,15,90,1
+lenteja,Lenteja,grano,manual,,,15,90,1
+aceite,Aceite vegetal,aceite,manual,,,20,90,1
+pollo_pierna_muslo,Pierna y muslo de pollo,proteina,sniim_pecuarios,,,35,140,1
+pechuga_pollo,Pechuga de pollo,proteina,sniim_pecuarios,,,50,220,1
+res_bistec,Bistec de res,proteina,sniim_pecuarios,,,120,400,1
+res_molida,Carne molida de res,proteina,sniim_pecuarios,,,90,320,1
+cerdo,Carne de cerdo (pierna),proteina,manual,,,60,220,1
+huevo,Huevo blanco,proteina,manual,,,20,80,1
+queso_fresco,Queso fresco,lacteo,manual,,,60,250,1
+crema,Crema,lacteo,manual,,,40,150,1
+tortilla,Tortilla de maíz,basico,manual,,,15,45,1
+fideo,Fideo,basico,manual,,,25,90,1
