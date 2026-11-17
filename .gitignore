@@ -27,3 +27,7 @@ reports/*_SINTETICO.md
 
 # modelos entrenados (se regeneran)
 models/
+
+# archivos sueltos de trabajo
+*.bundle
+*.xlsx
