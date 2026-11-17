@@ -49,7 +49,7 @@ def test_emparejar_productos():
         "categoria": ["frutas_hortalizas"] * 6,
         "producto_id": ["836", "839", "417", "419", "183", "182"],
         "producto": ["Tomate Bola - Primera", "Tomate Saladette - Primera", "Limón c/semilla # 2 - Primera",
-                     "Limón c/semilla sin clasificación - Primera", "Cebolla Bola - Primera",
+                     "Limón c/semilla # 4 - Primera", "Cebolla Bola - Primera",
                      "Cebolla Bola grande - Primera"],
     })
     m = emparejar_productos(prods, cargar_catalogo()).set_index("insumo_id")
