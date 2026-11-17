@@ -113,29 +113,56 @@ REGLAS:
 - Prefiere platillos que la fonda ya vende; puedes sugerir 1 del recetario si conviene por precio.
 - Aprovecha insumos que bajan, evita depender de los que suben, y da variedad de proteína.
 - NO calcules totales ni costos semanales: el sistema los calcula y descarta lo que no cabe.
-- Responde SOLO con un JSON: una lista de 3 objetos con las llaves
-  "titulo" (máx 5 palabras), "platillos" (lista de ids) y "razon" (1-2 frases en español sencillo para el fondero).
+- Usa la herramienta proponer_menus para responder con exactamente 3 menús: "titulo" (máx 5 palabras),
+  "platillos" (lista de ids) y "razon" (1-2 frases cortas en español sencillo para el fondero).
 """
 
 
-def _llamar(prompt: str) -> str:
+HERRAMIENTA = {
+    "name": "proponer_menus",
+    "description": "Entrega las propuestas de menú semanal para la fonda.",
+    "input_schema": {
+        "type": "object",
+        "properties": {"menus": {"type": "array", "minItems": 1, "maxItems": 5, "items": {
+            "type": "object",
+            "properties": {"titulo": {"type": "string"}, "platillos": {"type": "array", "items": {"type": "string"}},
+                           "razon": {"type": "string"}},
+            "required": ["titulo", "platillos", "razon"]}}},
+        "required": ["menus"]},
+}
+
+
+def _llamar(prompt: str) -> dict:
+    """Llama a Claude con tool use forzado: la respuesta llega como JSON válido según el esquema."""
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
         raise RuntimeError("Falta ANTHROPIC_API_KEY en .env")
-    r = requests.post(API_URL, timeout=120, headers={
+    r = requests.post(API_URL, timeout=180, headers={
         "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-        json={"model": os.environ.get("ANTHROPIC_MODEL", MODELO_DEFAULT), "max_tokens": 1500,
+        json={"model": os.environ.get("ANTHROPIC_MODEL", MODELO_DEFAULT), "max_tokens": 4000,
+              "tools": [HERRAMIENTA], "tool_choice": {"type": "tool", "name": "proponer_menus"},
               "messages": [{"role": "user", "content": prompt}]})
     if r.status_code != 200:
         raise RuntimeError(f"API de Claude respondió {r.status_code}: {r.text[:300]}")
-    return "".join(b.get("text", "") for b in r.json().get("content", []))
+    return r.json()
+
+
+def extraer(resp: dict) -> list[dict]:
+    for b in resp.get("content", []):
+        if b.get("type") == "tool_use" and isinstance(b.get("input"), dict):
+            return _limpiar(b["input"].get("menus", []))
+    texto = "".join(b.get("text", "") for b in resp.get("content", []))
+    return parsear(texto)  # respaldo por si el modelo respondió en texto
 
 
 def parsear(texto: str) -> list[dict]:
     m = re.search(r"\[.*\]", texto, flags=re.S)
     if not m:
         raise ValueError("La respuesta no trae una lista JSON")
-    datos = json.loads(m.group(0))
+    return _limpiar(json.loads(m.group(0)))
+
+
+def _limpiar(datos: list) -> list[dict]:
     return [{"titulo": str(d.get("titulo", ""))[:60], "platillos": [str(x) for x in d.get("platillos", [])],
              "razon": str(d.get("razon", ""))[:400]} for d in datos if isinstance(d, dict)]
 
@@ -165,11 +192,22 @@ def generar() -> dict:
         comp = COMPOSICION.get(fonda["tipo"], COMPOSICION["comida_corrida"])
         comp = {t: min(n, sum(p["tiempo"] == t for p in cat)) for t, n in comp.items()}
         prompt = _prompt(fonda, cat, hoy, p_h, comp)
-        texto = _llamar(prompt)
-        sello = datetime.now().strftime("%Y%m%d_%H%M%S")
-        (bitacora / f"{fonda['fonda_id']}_{sello}.json").write_text(
-            json.dumps({"prompt": prompt, "respuesta": texto}, ensure_ascii=False, indent=1), encoding="utf-8")
-        props = verificar(parsear(texto), {p["id"]: p for p in cat}, comp, float(fonda["presupuesto_semanal"]),
+        crudos = None
+        for intento in (1, 2):
+            try:
+                resp = _llamar(prompt)
+                sello = datetime.now().strftime("%Y%m%d_%H%M%S")
+                (bitacora / f"{fonda['fonda_id']}_{sello}.json").write_text(json.dumps(
+                    {"prompt": prompt, "stop_reason": resp.get("stop_reason"), "usage": resp.get("usage"),
+                     "respuesta": resp.get("content")}, ensure_ascii=False, indent=1), encoding="utf-8")
+                crudos = extraer(resp)
+                break
+            except (ValueError, KeyError, json.JSONDecodeError) as e:
+                log.warning("%s: respuesta inválida (intento %d): %s", fonda["fonda_id"], intento, e)
+        if not crudos:
+            log.error("%s: sin menús de Claude; se omite esta fonda", fonda["fonda_id"])
+            continue
+        props = verificar(crudos, {p["id"]: p for p in cat}, comp, float(fonda["presupuesto_semanal"]),
                           int(fonda["comensales_dia"]), float(fonda["merma"]))
         salida[fonda["fonda_id"]] = props
         log.info("%s: %d menús de Claude · %d caben en el presupuesto", fonda["nombre"], len(props),

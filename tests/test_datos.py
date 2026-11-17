@@ -190,3 +190,12 @@ def test_llm_parsea_y_verifica_sin_confiar_en_el_llm():
     assert abs(v["costo_semanal"] - 22 * 1.1 * 50 * 6) < 1e-6 and v["cabe"]
     v2 = verificar(props, cat, {"plato_fuerte": 1, "bebida": 1}, presupuesto=1_000, comensales=50, merma=0.1)[0]
     assert not v2["cabe"]
+
+
+def test_llm_extrae_tool_use():
+    from insumos.menus_llm import extraer
+
+    resp = {"stop_reason": "tool_use", "content": [{"type": "tool_use", "name": "proponer_menus", "input": {
+        "menus": [{"titulo": 'Semana "verde"', "platillos": ["a"], "razon": 'Con comillas "raras".'}]}}]}
+    m = extraer(resp)
+    assert m[0]["platillos"] == ["a"] and "comillas" in m[0]["razon"]
