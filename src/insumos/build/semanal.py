@@ -45,6 +45,11 @@ def _precios_diarios() -> pd.DataFrame:
     m = manual.precios_manual()
     if len(m):
         partes.append(m)
+    b = manual.precios_base_inflacion()
+    if len(b):
+        # solo para insumos que no tienen ya una fuente de mercado
+        ya = set(pd.concat(partes)["insumo_id"]) if partes else set()
+        partes.append(b[~b["insumo_id"].isin(ya)])
     if not partes:
         raise RuntimeError("No hay precios en silver ni en external/precios_manual.csv")
     return pd.concat(partes, ignore_index=True)

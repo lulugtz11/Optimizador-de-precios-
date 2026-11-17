@@ -34,6 +34,35 @@ def precios_manual() -> pd.DataFrame:
     return df[["fecha", "insumo_id", "precio_frec", "fuente"]]
 
 
+def precios_base_inflacion() -> pd.DataFrame:
+    """config/precios_base.csv + INPC (Banxico) -> serie semanal por insumo.
+
+    precio(t) = precio_base_kg * INPC(mes de t) / INPC(mes de fecha_base)
+    Respaldo para insumos sin fuente de mercado: no captura choques propios del producto,
+    solo la tendencia general de precios.
+    """
+    cols = ["fecha", "insumo_id", "precio_frec", "fuente"]
+    f_cfg, f_macro = config.CONFIG_DIR / "precios_base.csv", config.silver() / "macro_banxico.csv"
+    if not f_cfg.exists() or not f_macro.exists():
+        return pd.DataFrame(columns=cols)
+    cfg = pd.read_csv(f_cfg).dropna(subset=["precio_base_kg", "fecha_base"])
+    macro = pd.read_csv(f_macro, parse_dates=["fecha"])
+    inpc = macro[macro["variable"] == "inpc"].set_index("fecha")["valor"].sort_index()
+    if inpc.empty or cfg.empty:
+        return pd.DataFrame(columns=cols)
+    lunes = pd.date_range(inpc.index.min(), pd.Timestamp.today(), freq="W-MON")
+    inpc_sem = inpc.reindex(inpc.index.union(lunes)).sort_index().ffill().reindex(lunes)
+    partes = []
+    for r in cfg.itertuples():
+        base = inpc.loc[:pd.Timestamp(r.fecha_base)]
+        if base.empty:
+            continue
+        partes.append(pd.DataFrame({"fecha": lunes, "insumo_id": r.insumo_id,
+                                    "precio_frec": r.precio_base_kg * inpc_sem.values / base.iloc[-1],
+                                    "fuente": "precio base x INPC"}))
+    return pd.concat(partes, ignore_index=True) if partes else pd.DataFrame(columns=cols)
+
+
 def diesel() -> pd.DataFrame:
     f = config.external() / "diesel.csv"
     if not f.exists():

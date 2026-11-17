@@ -146,3 +146,16 @@ def test_nopal_se_convierte_de_pieza_a_kg():
     cat = cargar_catalogo().set_index("insumo_id")
     assert cat.loc["nopal", "factor_a_kg"] == 12.5
     assert 1.5 * cat.loc["nopal", "factor_a_kg"] >= cat.loc["nopal", "precio_min_kg"]
+
+
+def test_precio_base_por_inflacion(tmp_path, monkeypatch):
+    from insumos.ingest import manual
+
+    monkeypatch.setenv("INSUMOS_DATA_DIR", str(tmp_path))
+    (tmp_path / "silver").mkdir()
+    pd.DataFrame({"fecha": pd.to_datetime(["2026-01-01", "2026-02-01"]), "variable": "inpc",
+                  "valor": [100.0, 110.0]}).to_csv(tmp_path / "silver" / "macro_banxico.csv", index=False)
+    df = manual.precios_base_inflacion().set_index(["insumo_id", "fecha"])
+    huevo = df.loc["huevo", "precio_frec"]  # base 36 en sep-2026; INPC de ese mes = 110 (último)
+    assert abs(huevo.loc[pd.Timestamp("2026-01-05")] - 36 * 100 / 110) < 1e-9
+    assert abs(huevo.iloc[-1] - 36.0) < 1e-9
