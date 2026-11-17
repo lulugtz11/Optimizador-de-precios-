@@ -24,10 +24,10 @@ arroz,Arroz,grano,manual,,,12,70
 frijol_negro,Frijol negro,grano,manual,,,15,90
 lenteja,Lenteja,grano,manual,,,15,90
 aceite,Aceite vegetal,aceite,manual,,,20,90
-pollo_pierna_muslo,Pierna y muslo de pollo,proteina,manual,,,35,140
-pechuga_pollo,Pechuga de pollo,proteina,manual,,,50,220
-res_bistec,Bistec de res,proteina,manual,,,120,400
-res_molida,Carne molida de res,proteina,manual,,,90,320
+pollo_pierna_muslo,Pierna y muslo de pollo,proteina,sniim_pecuarios,,,35,140
+pechuga_pollo,Pechuga de pollo,proteina,sniim_pecuarios,,,50,220
+res_bistec,Bistec de res,proteina,sniim_pecuarios,,,120,400
+res_molida,Carne molida de res,proteina,sniim_pecuarios,,,90,320
 cerdo,Carne de cerdo (pierna),proteina,manual,,,60,220
 huevo,Huevo blanco,proteina,manual,,,20,80
 queso_fresco,Queso fresco,lacteo,manual,,,60,250

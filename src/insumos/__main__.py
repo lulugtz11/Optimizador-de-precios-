@@ -6,6 +6,7 @@
     python -m insumos gold             # panel semanal (entrada del modelo)
     python -m insumos costeo           # costo por platillo + baselines de KPIs
     python -m insumos calidad          # reports/calidad_datos.md
+    python -m insumos pecuarios        # solo pollo y res de SNIIM pecuarios (descarga + silver)
     python -m insumos inegi            # solo precios de proteínas/granos (INPC por genérico)
     python -m insumos fondas           # genera 4 fondas simuladas (necesita gold)
     python -m insumos todo             # todo lo anterior en orden
@@ -34,7 +35,7 @@ def _cargar_env() -> None:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="insumos", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("comando", choices=["productos", "ingesta", "silver", "gold", "costeo", "calidad", "fondas", "inegi", "todo", "demo"])
+    p.add_argument("comando", choices=["productos", "ingesta", "silver", "gold", "costeo", "calidad", "fondas", "inegi", "pecuarios", "todo", "demo"])
     p.add_argument("--desde", default=config.FECHA_INICIO_DEFAULT)
     p.add_argument("--hasta", default=None)
     p.add_argument("--solo", nargs="*", help="insumo_id a descargar (default: todos)")
@@ -67,20 +68,26 @@ def main(argv: list[str] | None = None) -> int:
             m = sniim.resolver_productos()
             print(m.to_string(index=False))
         elif paso == "ingesta":
-            from .ingest import banxico, inegi, sniim
+            from .ingest import banxico, inegi, sniim, sniim_pecuarios
             sniim.descargar(a.desde, a.hasta, a.solo, a.forzar)
-            for nombre, fn in (("Banxico", lambda: banxico.descargar(a.desde, a.hasta)),
+            for nombre, fn in (("SNIIM pecuarios", lambda: sniim_pecuarios.descargar(a.desde, a.forzar)),
+                               ("Banxico", lambda: banxico.descargar(a.desde, a.hasta)),
                                ("INEGI", inegi.descargar)):
                 try:
                     fn()
                 except Exception as e:  # una fuente caída no detiene el pipeline
                     log.warning("%s omitido: %s", nombre, e)
+        elif paso == "pecuarios":
+            from .ingest import sniim_pecuarios
+            sniim_pecuarios.descargar(a.desde, a.forzar)
+            sniim_pecuarios.construir_silver()
         elif paso == "inegi":
             from .ingest import inegi
             inegi.descargar()
         elif paso == "silver":
-            from .ingest import sniim
+            from .ingest import sniim, sniim_pecuarios
             sniim.construir_silver()
+            sniim_pecuarios.construir_silver()
         elif paso == "gold":
             from .build import semanal
             semanal.construir_panel()

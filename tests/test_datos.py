@@ -120,3 +120,23 @@ def test_costeo_no_ignora_ingredientes_sin_precio():
     c = costo_semanal(recetas, menus, panel).set_index(["platillo_id", "semana"])
     assert c.loc[("a", pd.Timestamp("2026-11-02")), "costo_porcion"] != c.loc[("a", pd.Timestamp("2026-11-02")), "costo_porcion"]  # NaN
     assert c.loc[("b", pd.Timestamp("2026-11-09")), "costo_porcion"] == 3.0
+
+
+def test_parser_pecuarios_pollo_cdmx():
+    from insumos.ingest.sniim_pecuarios import parsear_pollo
+
+    df = parsear_pollo((FIX / "sniim_pecuarios_pollo.html").read_text(encoding="utf-8"))
+    assert set(df["insumo_id"]) == {"pechuga_pollo", "pollo_pierna_muslo"}
+    assert df["origen"].str.startswith("D.F.").all()  # La Paz, Querétaro, etc. se descartan
+    becerra = df[(df["origen"].str.contains("Becerra")) & (df["fecha"] == "2026-10-09")].set_index("insumo_id")
+    assert becerra.loc["pechuga_pollo", "precio_frec"] == 112.0
+    assert becerra.loc["pollo_pierna_muslo", "precio_frec"] == 43.0
+
+
+def test_parser_pecuarios_bovino():
+    from insumos.ingest.sniim_pecuarios import parsear_bovino
+
+    df = parsear_bovino((FIX / "sniim_pecuarios_bovino.html").read_text(encoding="utf-8"))
+    assert set(df["insumo_id"]) <= {"res_bistec", "res_molida"} and len(df) > 0
+    primera = df[(df["fecha"] == "2026-10-09") & (df["insumo_id"] == "res_bistec")]
+    assert primera["precio_frec"].iloc[0] == 150.0  # Pulpa Bola, solo precio máximo
