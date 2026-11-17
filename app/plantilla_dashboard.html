@@ -529,14 +529,14 @@ function renderMenu() {
   function registrar(ok, titulo, motivo) { const fb = leer("feedback", []); fb.push({ fecha: new Date().toISOString(), ok, titulo, motivo, h: S.h }); guardar("feedback", fb); }
   function pintarLLM() {
     const prop = (D.menus_llm || {})[f.id];
-    if (!prop || !prop.length) { llmBox.replaceChildren(el("div", { class: "note" }, "Aún no hay menús del LLM para esta fonda. Se generan con ", el("code", {}, "python -m insumos menus_llm"), " (Claude, con las recetas como contexto). El código siempre verifica el costo y descarta los que no caben.")); return; }
+    if (!prop || !prop.length) { llmBox.replaceChildren(el("div", { class: "note" }, "Aún no hay menús del LLM para esta fonda. Se generan con ", el("code", {}, "python -m insumos menus_llm"), ". El código siempre verifica el costo y descarta los que no caben.")); return; }
     const todos = catalogoCompleto(), activo = leer("menu_activo", null);
     const tarjetas = prop.map((m, i) => {
       const sel = m.platillos.map(pid => todos.find(p => p.pid === pid)).filter(Boolean);
       if (!sel.length) return null;
       const ev = evaluarMenu(sel, P), cabe = ev.semanal <= P.presupuesto;
       const extra = el("div", {}, el("p", { class: "small", style: "margin:0 0 4px" }, m.razon || ""), el("p", { class: cabe ? "ok-t small" : "no-t small", style: "margin:0" }, cabe ? "✔ Verificado por código: cabe en tu presupuesto" : "✖ Descartado por el código: se pasa del presupuesto (" + fmt$(ev.semanal, 0) + ")"));
-      return cabe || true ? tarjeta({ sel, ev }, "Claude · " + (m.titulo || "Propuesta " + (i + 1)), activo, extra) : null;
+      return cabe || true ? tarjeta({ sel, ev }, "LLM · " + (m.titulo || "Propuesta " + (i + 1)), activo, extra) : null;
     }).filter(Boolean);
     llmBox.replaceChildren(...tarjetas);
   }
@@ -545,7 +545,7 @@ function renderMenu() {
     el("div", { class: "card" }, el("div", { class: "row" }, inp("presupuesto", "Presupuesto semanal ($)", 500, 130), inp("comensales", "Comensales al día"), inp("dias", "Días a la semana"), inp("precio", "Precio de tu comida ($)", 5), inp("nf", "Platos fuertes"), inp("ne", "Entradas/sopas"), inp("nb", "Bebidas"), inp("ng", "Guarniciones"), el("label", {}, "Platillos", cat)),
       el("div", { style: "margin-top:10px" }, excl), resumen),
     el("h3", { style: "margin:18px 0 8px" }, "Propuestas del optimizador"), salida,
-    el("h3", { style: "margin:22px 0 8px" }, "Propuestas de Claude (LLM + recetas, verificadas por código)"), llmBox);
+    el("h3", { style: "margin:22px 0 8px" }, "Propuestas de LLM"), llmBox);
   calcular();
 }
 
