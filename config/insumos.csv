@@ -1,29 +1,29 @@
 insumo_id,nombre,grupo,fuente,sniim_categoria,patron_sniim,precio_min_kg,precio_max_kg
-jitomate,Jitomate saladette,verdura,sniim,frutas_hortalizas,^jitomate saladette,5,90
+jitomate,Jitomate saladette,verdura,sniim,frutas_hortalizas,^tomate saladette - primera,5,90
 tomate_verde,Tomate verde,verdura,sniim,frutas_hortalizas,^tomate verde,4,80
-cebolla,Cebolla blanca,verdura,sniim,frutas_hortalizas,^cebolla blanca,4,70
+cebolla,Cebolla blanca,verdura,sniim,frutas_hortalizas,^cebolla bola - primera,4,70
 ajo,Ajo,verdura,sniim,frutas_hortalizas,^ajo,20,250
 chile_serrano,Chile serrano,verdura,sniim,frutas_hortalizas,^chile serrano,8,150
 chile_jalapeno,Chile jalapeño,verdura,sniim,frutas_hortalizas,^chile jalapeno,6,120
 chile_poblano,Chile poblano,verdura,sniim,frutas_hortalizas,^chile poblano,8,120
 chile_guajillo,Chile guajillo (seco),verdura,sniim,frutas_hortalizas,^chile guajillo,40,400
 papa,Papa,verdura,sniim,frutas_hortalizas,^papa (alpha|blanca),6,70
-zanahoria,Zanahoria,verdura,sniim,frutas_hortalizas,^zanahoria,3,50
+zanahoria,Zanahoria,verdura,sniim,frutas_hortalizas,^zanahoria mediana,3,50
 calabacita,Calabacita italiana,verdura,sniim,frutas_hortalizas,^calabacita italiana,4,70
 chayote,Chayote,verdura,sniim,frutas_hortalizas,^chayote,3,50
 nopal,Nopal,verdura,sniim,frutas_hortalizas,^nopal,3,50
-lechuga,Lechuga romana,verdura,sniim,frutas_hortalizas,^lechuga romana,3,60
+lechuga,Lechuga romana,verdura,sniim,frutas_hortalizas,^lechuga romanita sin clasificacion,3,60
 cilantro,Cilantro,verdura,sniim,frutas_hortalizas,^cilantro,3,80
 pepino,Pepino,verdura,sniim,frutas_hortalizas,^pepino,3,50
 ejote,Ejote,verdura,sniim,frutas_hortalizas,^ejote,6,90
-limon,Limón con semilla,fruta,sniim,frutas_hortalizas,^limon (c/semilla|con semilla|mexicano),5,120
+limon,Limón con semilla,fruta,sniim,frutas_hortalizas,^limon c/semilla sin clasificacion,5,120
 aguacate,Aguacate Hass,fruta,sniim,frutas_hortalizas,^aguacate hass,15,150
 platano,Plátano Tabasco,fruta,sniim,frutas_hortalizas,^platano tabasco,5,50
-naranja,Naranja Valencia,fruta,sniim,frutas_hortalizas,^naranja valencia,3,40
-arroz,Arroz,grano,sniim,granos,^arroz,12,70
-frijol_negro,Frijol negro,grano,sniim,granos,^frijol negro,15,90
+naranja,Naranja Valencia,fruta,sniim,frutas_hortalizas,^naranja valencia mediana,3,40
+arroz,Arroz,grano,sniim,granos,^arroz pulido sin especificar,12,70
+frijol_negro,Frijol negro,grano,sniim,granos,^frijol negro -$,15,90
 lenteja,Lenteja,grano,sniim,granos,^lenteja,15,90
-aceite,Aceite vegetal,aceite,sniim,aceites,aceite,20,90
+aceite,Aceite vegetal,aceite,sniim,aceites,^sin especificar - vegetal mixto,20,90
 pollo_pierna_muslo,Pierna y muslo de pollo,proteina,manual,,,35,140
 pechuga_pollo,Pechuga de pollo,proteina,manual,,,50,220
 res_bistec,Bistec de res,proteina,manual,,,120,400
