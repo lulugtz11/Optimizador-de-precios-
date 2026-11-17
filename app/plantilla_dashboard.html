@@ -658,7 +658,8 @@ function renderSimulador() {
   const nombresMenu = m => m ? m.sel.filter(p => p.tiempo === "plato_fuerte").map(p => p.nombre).join(", ") : "ninguno cabe";
   sec.replaceChildren(
     el("h2", {}, "¿Y si…? Simulador de escenarios"),
-    el("p", { class: "lead" }, "Mueve el precio de los insumos encima del pronóstico a " + hLabel(h) + " y mira qué pasa con tus costos, tu margen y tu menú. El escenario se aplica a todo el dashboard hasta que lo quites."),
+    el("p", { class: "lead" }, "El modelo ya pronosticó cuánto van a costar tus insumos en " + hLabel(h) + ". Aquí puedes imaginar algo que el modelo no sabe —por ejemplo, \"¿y si sale una noticia de gripe aviar y el pollo sube 30% más?\"— y ver al instante qué le pasa a tu fonda."),
+    el("div", { class: "note", style: "margin-bottom:14px" }, el("b", {}, "Cómo se usa: "), "1) Elige un escenario listo o mueve las barritas de los insumos (0% = el pronóstico normal; +30% = 30% más caro de lo que esperamos). 2) Mira arriba cuánto cambian tu costo, tu margen y tu compra semanal, y si sigues cabiendo en tu presupuesto. 3) A la derecha ves qué platillos se encarecen y si te conviene otro menú. El escenario se aplica a todo el dashboard hasta que le des \"Quitar escenario\"."),
     el("div", { class: "row", style: "margin-bottom:14px" }, PRESETS.map(p => el("button", { class: "preset", on: { click: () => aplicarPreset(p) } }, p.n)),
       el("button", { class: "preset", on: { click: () => { for (const k of Object.keys(ESC)) delete ESC[k]; actualizarBanner(); renderSimulador(); } } }, "↺ Sin escenario")),
     el("div", { class: "grid g4" },
@@ -668,8 +669,8 @@ function renderSimulador() {
       el("div", { class: "card tile" }, el("div", { class: "lab" }, "¿Cabe en el presupuesto de " + fmt$(P.presupuesto, 0) + "?"), el("div", { class: "val" }, ev1.semanal <= P.presupuesto ? "Sí" : "No"),
         el("div", { class: "del " + (ev1.semanal <= P.presupuesto ? "down" : "up") }, ev1.semanal <= P.presupuesto ? "▼ te sobran " + fmt$(P.presupuesto - ev1.semanal, 0) : "▲ te faltan " + fmt$(ev1.semanal - P.presupuesto, 0)))),
     el("div", { class: "grid g2", style: "margin-top:16px" },
-      el("div", { class: "card" }, el("h3", {}, "Mueve los precios (sobre el pronóstico)"), el("p", { class: "small" }, "Tus 14 insumos que más pesan en tus costos, de mayor a menor."), sliders),
-      el("div", { class: "card" }, el("h3", {}, "Lo que cambia"),
+      el("div", { class: "card" }, el("h3", {}, "¿Cuánto más caro (o barato) que el pronóstico?"), el("p", { class: "small" }, "Arrastra la barrita: a la derecha = más caro, a la izquierda = más barato. Son tus 14 insumos que más pesan en tus costos."), sliders),
+      el("div", { class: "card" }, el("h3", {}, "Así le pega a tu fonda"),
         el("p", {}, el("b", {}, "Mejor menú sin escenario: "), nombresMenu(menu0)),
         el("p", {}, el("b", {}, "Mejor menú con escenario: "), nombresMenu(menu1),
           menu0 && menu1 && nombresMenu(menu0) !== nombresMenu(menu1) ? el("span", { class: "pill base", style: "margin-left:6px" }, "cambió") : ""),
