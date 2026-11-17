@@ -44,15 +44,17 @@ def test_catalogo_valido():
 
 
 def test_emparejar_productos():
+    # nombres reales del dropdown de SNIIM (nov 2026)
     prods = pd.DataFrame({
-        "categoria": ["frutas_hortalizas"] * 3 + ["granos"],
-        "producto_id": ["1", "2", "3", "9"],
-        "producto": ["Jitomate Saladette", "Jitomate Bola", "Limón c/semilla No. 4", "Frijol Negro"],
+        "categoria": ["frutas_hortalizas"] * 4 + ["granos"] * 2,
+        "producto_id": ["836", "839", "417", "419", "347", "348"],
+        "producto": ["Tomate Bola - Primera", "Tomate Saladette - Primera", "Limón c/semilla # 2 - Primera",
+                     "Limón c/semilla sin clasificación - Primera", "Frijol Negro -", "Frijol Negro bola -"],
     })
     m = emparejar_productos(prods, cargar_catalogo()).set_index("insumo_id")
-    assert m.loc["jitomate", "producto_id"] == "1"
-    assert m.loc["limon", "producto_id"] == "3"
-    assert m.loc["frijol_negro", "producto_id"] == "9"
+    assert m.loc["jitomate", "producto_id"] == "839"
+    assert m.loc["limon", "producto_id"] == "419"
+    assert m.loc["frijol_negro", "producto_id"] == "347"
     assert m.loc["aguacate", "producto_id"] == ""  # sin match -> se reporta
 
 
