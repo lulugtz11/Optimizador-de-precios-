@@ -24,3 +24,6 @@ reports/*_SINTETICO.md
 # editores
 .vscode/
 .idea/
+
+# modelos entrenados (se regeneran)
+models/

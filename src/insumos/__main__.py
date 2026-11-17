@@ -9,6 +9,7 @@
     python -m insumos pecuarios        # solo pollo y res de SNIIM pecuarios (descarga + silver)
     python -m insumos inegi            # solo precios de proteínas/granos (INPC por genérico)
     python -m insumos fondas           # genera 4 fondas simuladas (necesita gold)
+    python -m insumos modelo           # backtest + KPIs + pronóstico a 12 semanas (~3 min)
     python -m insumos todo             # todo lo anterior en orden
     python -m insumos demo             # corre gold/costeo/calidad con datos SIMULADOS (data_sample/)
 """
@@ -35,7 +36,7 @@ def _cargar_env() -> None:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="insumos", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("comando", choices=["productos", "ingesta", "silver", "gold", "costeo", "calidad", "fondas", "inegi", "pecuarios", "todo", "demo"])
+    p.add_argument("comando", choices=["productos", "ingesta", "silver", "gold", "costeo", "calidad", "fondas", "inegi", "pecuarios", "modelo", "todo", "demo"])
     p.add_argument("--desde", default=config.FECHA_INICIO_DEFAULT)
     p.add_argument("--hasta", default=None)
     p.add_argument("--solo", nargs="*", help="insumo_id a descargar (default: todos)")
@@ -77,6 +78,13 @@ def main(argv: list[str] | None = None) -> int:
                     fn()
                 except Exception as e:  # una fuente caída no detiene el pipeline
                     log.warning("%s omitido: %s", nombre, e)
+        elif paso == "modelo":
+            from . import modelo
+            r = modelo.correr()
+            k1 = r["kpi1"][r["kpi1"]["modelo"].isin(["modelo", "ingenuo", "cobertura_intervalo_80"])]
+            print("\nKPI 1 (wRMSE %; cobertura en MAE_pct):\n", k1.round(2).to_string(index=False))
+            print("\nKPI 2 (error % costo de menú):\n", r["kpi2"].round(2).to_string(index=False))
+            log.info("Reporte en reports/modelo.md · pronósticos en gold/pronosticos.csv")
         elif paso == "pecuarios":
             from .ingest import sniim_pecuarios
             sniim_pecuarios.descargar(a.desde, a.forzar)

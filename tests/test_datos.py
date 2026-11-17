@@ -159,3 +159,14 @@ def test_precio_base_por_inflacion(tmp_path, monkeypatch):
     huevo = df.loc["huevo", "precio_frec"]  # base 36 en sep-2026; INPC de ese mes = 110 (último)
     assert abs(huevo.loc[pd.Timestamp("2026-01-05")] - 36 * 100 / 110) < 1e-9
     assert abs(huevo.iloc[-1] - 36.0) < 1e-9
+
+
+def test_calibracion_conformal_no_usa_el_futuro():
+    from insumos.modelo import calibrar
+
+    cortes = pd.to_datetime(["2026-01-05"] * 60 + ["2026-04-06"] * 60)
+    bt = pd.DataFrame({"h": 4, "corte": cortes, "precio_obj": 100.0,
+                       "modelo_p10": 95.0, "modelo_p90": 99.0})  # el real siempre queda fuera (arriba)
+    c = calibrar(bt)
+    assert (c.loc[c["corte"] == cortes[0], "ajuste_intervalo"] == 0).all()  # primer bloque: sin historia
+    assert (c.loc[c["corte"] == cortes[-1], "modelo_p90"] >= 100).all()     # segundo: se ensancha
