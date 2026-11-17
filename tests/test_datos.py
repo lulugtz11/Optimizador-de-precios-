@@ -170,3 +170,10 @@ def test_calibracion_conformal_no_usa_el_futuro():
     c = calibrar(bt)
     assert (c.loc[c["corte"] == cortes[0], "ajuste_intervalo"] == 0).all()  # primer bloque: sin historia
     assert (c.loc[c["corte"] == cortes[-1], "modelo_p90"] >= 100).all()     # segundo: se ensancha
+
+
+def test_mercado_estado():
+    from insumos.ingest.sniim_estados import _mercado_estado
+
+    assert _mercado_estado("DF: Central de Abasto de Iztapalapa DF")[1] == "Ciudad de México"
+    assert _mercado_estado("Jalisco: Mercado de Abasto de Guadalajara")[1] == "Jalisco"
