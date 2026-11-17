@@ -1,10 +1,10 @@
 insumo_id,precio_base_kg,fecha_base,fuente
-huevo,36.00,2026-09-01,"Central de Abasto CDMX, mayoreo 35-37 $/kg (adn40, 2 sep 2026)"
-tortilla,21.70,2026-07-01,"SNIIM tortilla CDMX jul 2026 (TV Azteca)"
-arroz,18.04,2026-05-08,"Profeco PACIC promedio nacional 4-8 may 2026"
-frijol_negro,24.15,2026-05-08,"Profeco PACIC promedio nacional 4-8 may 2026"
-cerdo,109.12,2026-05-08,"Profeco promedio nacional may 2026"
-fideo,27.50,2026-05-12,"Profeco: paquete 220 g entre 4.46 y 7.66 pesos (punto medio / 0.22 kg)"
-aceite,45.00,2026-11-01,"Profeco: aceite mixto 500 ml desde 21 pesos (aprox. por kg; precio mínimo)"
-queso_fresco,,,"PENDIENTE: un precio por kg con fuente"
-crema,,,"PENDIENTE: un precio por kg con fuente"
+huevo,36.0,2026-09-01,"Central de Abasto CDMX, mayoreo 35-37 $/kg (adn40, 2 sep 2026)"
+tortilla,21.7,2026-07-01,SNIIM tortilla CDMX jul 2026 (TV Azteca)
+arroz,18.04,2026-05-08,Profeco PACIC promedio nacional 4-8 may 2026
+frijol_negro,24.15,2026-05-08,Profeco PACIC promedio nacional 4-8 may 2026
+cerdo,109.12,2026-05-08,Profeco promedio nacional may 2026
+fideo,27.5,2026-05-12,Profeco: paquete 220 g entre 4.46 y 7.66 pesos (punto medio / 0.22 kg)
+aceite,45.0,2026-11-01,Profeco: aceite mixto 500 ml desde 21 pesos (aprox. por kg; precio mínimo)
+queso_fresco,196.0,2026-11-16,"Walmart en línea: queso panela FUD por kg (sustituto de queso fresco), 16 nov 2026"
+crema,78.9,2026-11-16,"Walmart en línea: crema ácida Alpura 900 ml a $71 (~1 kg/L), 16 nov 2026"
