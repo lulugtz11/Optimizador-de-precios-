@@ -133,14 +133,14 @@ HERRAMIENTA = {
 
 
 def _llamar(prompt: str) -> dict:
-    """Llama a Claude con tool use forzado: la respuesta llega como JSON válido según el esquema."""
+    """Llama a Claude ofreciendo la herramienta: si la usa, el JSON llega validado por el esquema."""
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
         raise RuntimeError("Falta ANTHROPIC_API_KEY en .env")
     r = requests.post(API_URL, timeout=180, headers={
         "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
         json={"model": os.environ.get("ANTHROPIC_MODEL", MODELO_DEFAULT), "max_tokens": 4000,
-              "tools": [HERRAMIENTA], "tool_choice": {"type": "tool", "name": "proponer_menus"},
+              "tools": [HERRAMIENTA],  # sin tool_choice forzado: algunos modelos no lo aceptan
               "messages": [{"role": "user", "content": prompt}]})
     if r.status_code != 200:
         raise RuntimeError(f"API de Claude respondió {r.status_code}: {r.text[:300]}")
