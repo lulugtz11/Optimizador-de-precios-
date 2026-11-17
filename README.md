@@ -108,3 +108,12 @@ data_sample/              (no se sube a git) salida de `demo`, SIMULADA
 
 Pipeline construido con apoyo de Claude (Anthropic). Todo análisis que se presente debe
 verificarse por el equipo (reglas de operación del Capstone): declararlo en el anexo.
+
+## INEGI (proteínas, granos, lácteos, tortilla)
+
+Precio por kg reconstruido = `precio_base_kg × INPC_genérico(t) / INPC_genérico(fecha_base)`.
+Llena `config/inegi_series.csv`:
+- `indicador_id`: en el BIE del INEGI (Precios e inflación → INPC → por objeto del gasto → genérico,
+  nacional, quincenal) abre la serie del genérico y copia su clave numérica.
+- `precio_base_kg` y `fecha_base`: un precio por kg conocido y su fecha (ticket de la Central, Profeco).
+Después: `python -m insumos inegi && python -m insumos gold`.

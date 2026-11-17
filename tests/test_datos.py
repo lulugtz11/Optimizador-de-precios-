@@ -99,3 +99,10 @@ def test_parser_estructura_real_sniim_fyh():
     assert df["precio_frec"].tolist() == [46.67, 34.62]
     assert df["presentacion"].iloc[0] == "Caja de 12 kg."
     assert df["destino"].isna().all()
+
+
+def test_periodos_inegi():
+    from insumos.ingest.inegi import _periodo
+
+    assert _periodo("2026/10") == pd.Timestamp("2026-10-01")
+    assert _periodo("2026/10/02") == pd.Timestamp("2026-10-16")

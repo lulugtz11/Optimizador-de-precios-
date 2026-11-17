@@ -33,6 +33,10 @@ def _precios_diarios() -> pd.DataFrame:
         partes.append(s[["fecha", "insumo_id", "precio_min", "precio_max", "precio_frec", "origen", "fuente"]])
     else:
         log.warning("No hay silver/sniim_diario.csv")
+    f_inegi = config.silver() / "inegi_precios.csv"
+    if f_inegi.exists():
+        i = pd.read_csv(f_inegi, parse_dates=["fecha"])
+        partes.append(i[["fecha", "insumo_id", "precio_frec", "fuente"]])
     m = manual.precios_manual()
     if len(m):
         partes.append(m)
