@@ -2,7 +2,7 @@ insumo_id,nombre,grupo,fuente,sniim_categoria,patron_sniim,precio_min_kg,precio_
 jitomate,Jitomate saladette,verdura,sniim,frutas_hortalizas,^tomate saladette - primera,5,90
 tomate_verde,Tomate verde,verdura,sniim,frutas_hortalizas,^tomate verde,4,80
 cebolla,Cebolla blanca,verdura,sniim,frutas_hortalizas,^cebolla bola - primera,4,70
-ajo,Ajo,verdura,sniim,frutas_hortalizas,^ajo,20,250
+ajo,Ajo morado,verdura,sniim,frutas_hortalizas,^ajo morado,20,250
 chile_serrano,Chile serrano,verdura,sniim,frutas_hortalizas,^chile serrano,8,150
 chile_jalapeno,Chile jalapeño,verdura,sniim,frutas_hortalizas,^chile jalapeno,6,120
 chile_poblano,Chile poblano,verdura,sniim,frutas_hortalizas,^chile poblano,8,120
@@ -10,13 +10,13 @@ chile_guajillo,Chile guajillo (seco),verdura,sniim,frutas_hortalizas,^chile guaj
 papa,Papa,verdura,sniim,frutas_hortalizas,^papa (alpha|blanca),6,70
 zanahoria,Zanahoria,verdura,sniim,frutas_hortalizas,^zanahoria mediana,3,50
 calabacita,Calabacita italiana,verdura,sniim,frutas_hortalizas,^calabacita italiana,4,70
-chayote,Chayote,verdura,sniim,frutas_hortalizas,^chayote,3,50
-nopal,Nopal,verdura,sniim,frutas_hortalizas,^nopal,3,50
-lechuga,Lechuga romana,verdura,sniim,frutas_hortalizas,^lechuga romanita sin clasificacion,3,60
+chayote,Chayote,verdura,sniim,frutas_hortalizas,^chayote sin espinas,3,50
+nopal,Nopal,verdura,sniim,frutas_hortalizas,^nopal grande,3,50
+lechuga,Lechuga romana,verdura,sniim,frutas_hortalizas,^lechuga romanita grande,3,60
 cilantro,Cilantro,verdura,sniim,frutas_hortalizas,^cilantro,3,80
 pepino,Pepino,verdura,sniim,frutas_hortalizas,^pepino,3,50
-ejote,Ejote,verdura,sniim,frutas_hortalizas,^ejote,6,90
-limon,Limón con semilla,fruta,sniim,frutas_hortalizas,^limon c/semilla sin clasificacion,5,120
+ejote,Ejote,verdura,sniim,frutas_hortalizas,^ejote redondo,6,90
+limon,Limón con semilla,fruta,sniim,frutas_hortalizas,^limon c/semilla # 4,5,120
 aguacate,Aguacate Hass,fruta,sniim,frutas_hortalizas,^aguacate hass,15,150
 platano,Plátano Tabasco,fruta,sniim,frutas_hortalizas,^platano tabasco,5,50
 naranja,Naranja Valencia,fruta,sniim,frutas_hortalizas,^naranja valencia mediana,3,40
