@@ -172,7 +172,10 @@ function descargarCSV(nombre, filas) {
   const esc = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const blob = new Blob(["﻿" + filas.map(r => r.map(esc).join(",")).join("\n")], { type: "text/csv" });
   const a = el("a", { href: URL.createObjectURL(blob), download: nombre }); document.body.append(a); a.click(); a.remove();
+  // en páginas publicadas las descargas pueden estar bloqueadas: también se copia al portapapeles
+  try { navigator.clipboard.writeText(filas.map(r => r.map(esc).join(",")).join("\n")).then(() => aviso("CSV copiado al portapapeles (pégalo en Excel o Sheets)"), () => {}); } catch (e) {}
 }
+function aviso(txt) { const t = el("div", { role: "status", style: "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#03264f;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;z-index:9" }, txt); document.body.append(t); setTimeout(() => t.remove(), 3500); }
 
 /* ---------- precios ---------- */
 const ESC = {}; let USAR_ESC = true;  // escenario "¿y si…?": factor multiplicativo sobre el precio futuro
