@@ -46,15 +46,16 @@ def test_catalogo_valido():
 def test_emparejar_productos():
     # nombres reales del dropdown de SNIIM (nov 2026)
     prods = pd.DataFrame({
-        "categoria": ["frutas_hortalizas"] * 4 + ["granos"] * 2,
-        "producto_id": ["836", "839", "417", "419", "347", "348"],
+        "categoria": ["frutas_hortalizas"] * 6,
+        "producto_id": ["836", "839", "417", "419", "183", "182"],
         "producto": ["Tomate Bola - Primera", "Tomate Saladette - Primera", "Limón c/semilla # 2 - Primera",
-                     "Limón c/semilla sin clasificación - Primera", "Frijol Negro -", "Frijol Negro bola -"],
+                     "Limón c/semilla sin clasificación - Primera", "Cebolla Bola - Primera",
+                     "Cebolla Bola grande - Primera"],
     })
     m = emparejar_productos(prods, cargar_catalogo()).set_index("insumo_id")
     assert m.loc["jitomate", "producto_id"] == "839"
     assert m.loc["limon", "producto_id"] == "419"
-    assert m.loc["frijol_negro", "producto_id"] == "347"
+    assert m.loc["cebolla", "producto_id"] == "183"
     assert m.loc["aguacate", "producto_id"] == ""  # sin match -> se reporta
 
 
@@ -90,3 +91,11 @@ def test_bronze_a_silver(tmp_path, monkeypatch):
     assert len(df) == 2  # la fila de Guadalajara se descarta
     assert set(df["insumo_id"]) == {"jitomate"}
     assert not df["fuera_de_rango"].any()
+
+
+def test_parser_estructura_real_sniim_fyh():
+    df = parsear_resultados((FIX / "sniim_real_fyh.html").read_text(encoding="utf-8"))
+    assert len(df) == 2  # la fila "Hortalizas" no cuenta
+    assert df["precio_frec"].tolist() == [46.67, 34.62]
+    assert df["presentacion"].iloc[0] == "Caja de 12 kg."
+    assert df["destino"].isna().all()

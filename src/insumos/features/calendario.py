@@ -52,6 +52,6 @@ def features_semanales(semanas: pd.Series) -> pd.DataFrame:
         })
     df = pd.DataFrame(filas)
     # codificación cíclica para que el modelo vea que la semana 52 está junto a la 1
-    df["sem_sin"] = np.sin(2 * np.pi * df["semana"].dt.dayofyear / 365.25)
-    df["sem_cos"] = np.cos(2 * np.pi * df["semana"].dt.dayofyear / 365.25)
+    df["sem_sin"] = np.sin(2 * np.pi * df["semana"].dt.day_of_year / 365.25)
+    df["sem_cos"] = np.cos(2 * np.pi * df["semana"].dt.day_of_year / 365.25)
     return df

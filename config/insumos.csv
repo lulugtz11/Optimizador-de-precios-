@@ -20,10 +20,10 @@ limon,Limón con semilla,fruta,sniim,frutas_hortalizas,^limon c/semilla sin clas
 aguacate,Aguacate Hass,fruta,sniim,frutas_hortalizas,^aguacate hass,15,150
 platano,Plátano Tabasco,fruta,sniim,frutas_hortalizas,^platano tabasco,5,50
 naranja,Naranja Valencia,fruta,sniim,frutas_hortalizas,^naranja valencia mediana,3,40
-arroz,Arroz,grano,sniim,granos,^arroz pulido sin especificar,12,70
-frijol_negro,Frijol negro,grano,sniim,granos,^frijol negro -$,15,90
-lenteja,Lenteja,grano,sniim,granos,^lenteja,15,90
-aceite,Aceite vegetal,aceite,sniim,aceites,^sin especificar - vegetal mixto,20,90
+arroz,Arroz,grano,manual,,,12,70
+frijol_negro,Frijol negro,grano,manual,,,15,90
+lenteja,Lenteja,grano,manual,,,15,90
+aceite,Aceite vegetal,aceite,manual,,,20,90
 pollo_pierna_muslo,Pierna y muslo de pollo,proteina,manual,,,35,140
 pechuga_pollo,Pechuga de pollo,proteina,manual,,,50,220
 res_bistec,Bistec de res,proteina,manual,,,120,400
