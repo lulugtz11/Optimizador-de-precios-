@@ -6,6 +6,7 @@
     python -m insumos gold             # panel semanal (entrada del modelo)
     python -m insumos costeo           # costo por platillo + baselines de KPIs
     python -m insumos calidad          # reports/calidad_datos.md
+    python -m insumos fondas           # genera 4 fondas simuladas (necesita gold)
     python -m insumos todo             # todo lo anterior en orden
     python -m insumos demo             # corre gold/costeo/calidad con datos SIMULADOS (data_sample/)
 """
@@ -32,7 +33,7 @@ def _cargar_env() -> None:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="insumos", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("comando", choices=["productos", "ingesta", "silver", "gold", "costeo", "calidad", "todo", "demo"])
+    p.add_argument("comando", choices=["productos", "ingesta", "silver", "gold", "costeo", "calidad", "fondas", "todo", "demo"])
     p.add_argument("--desde", default=config.FECHA_INICIO_DEFAULT)
     p.add_argument("--hasta", default=None)
     p.add_argument("--solo", nargs="*", help="insumo_id a descargar (default: todos)")
@@ -50,7 +51,7 @@ def main(argv: list[str] | None = None) -> int:
         from . import sample
         log.warning("MODO DEMO: datos SIMULADOS en data_sample/. No usar en entregas.")
         sample.generar()
-        pasos = ["gold", "costeo", "calidad"]
+        pasos = ["gold", "fondas", "costeo", "calidad"]
     elif a.comando == "todo":
         pasos = ["ingesta", "silver", "gold", "costeo", "calidad"]
     else:
@@ -77,6 +78,9 @@ def main(argv: list[str] | None = None) -> int:
         elif paso == "gold":
             from .build import semanal
             semanal.construir_panel()
+        elif paso == "fondas":
+            from . import fondas_sim
+            fondas_sim.generar()
         elif paso == "costeo":
             from .build import costeo
             r = costeo.construir()

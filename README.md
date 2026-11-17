@@ -55,7 +55,12 @@ hay pruebas con HTML de ejemplo en `tests/fixtures/`.
 
 ## Datos de las fondas
 
-Copia las plantillas a `data/fondas/` y reemplázalas con datos reales:
+**Por ahora son simuladas:** `python -m insumos fondas` (después de `gold`) genera 4 fondas
+(comida corrida ×2, antojitos, desayunos) con menús, recetas, ventas diarias y tickets.
+Las fondas son inventadas, pero sus compras se valúan con el **precio real** de la Central de
+Abasto de esa semana (± regateo). Semilla fija: todo el equipo obtiene lo mismo.
+
+Para usar datos reales en lugar de los simulados:
 
 - `recetas.csv` — `platillo_id, platillo, insumo_id, gramos_por_porcion` (el `insumo_id` debe existir en `config/insumos.csv`)
 - `menus.csv` — `platillo_id, tiempo, precio_venta`

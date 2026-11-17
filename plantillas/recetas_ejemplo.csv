@@ -77,3 +77,33 @@ guacamole,Guacamole,cilantro,3
 guacamole,Guacamole,limon,10
 guacamole,Guacamole,chile_serrano,5
 agua_limon,Agua de limón,limon,60
+chilaquiles_verdes,Chilaquiles verdes,tortilla,120
+chilaquiles_verdes,Chilaquiles verdes,tomate_verde,120
+chilaquiles_verdes,Chilaquiles verdes,chile_serrano,10
+chilaquiles_verdes,Chilaquiles verdes,cebolla,20
+chilaquiles_verdes,Chilaquiles verdes,crema,30
+chilaquiles_verdes,Chilaquiles verdes,queso_fresco,25
+chilaquiles_verdes,Chilaquiles verdes,huevo,55
+chilaquiles_verdes,Chilaquiles verdes,aceite,25
+quesadillas,Quesadillas,tortilla,120
+quesadillas,Quesadillas,queso_fresco,60
+quesadillas,Quesadillas,lechuga,20
+quesadillas,Quesadillas,tomate_verde,40
+quesadillas,Quesadillas,chile_serrano,5
+sopes,Sopes,tortilla,100
+sopes,Sopes,frijol_negro,40
+sopes,Sopes,res_molida,60
+sopes,Sopes,queso_fresco,20
+sopes,Sopes,crema,20
+sopes,Sopes,lechuga,20
+sopes,Sopes,jitomate,30
+sopes,Sopes,aceite,10
+caldo_pollo,Caldo de pollo,pollo_pierna_muslo,200
+caldo_pollo,Caldo de pollo,zanahoria,50
+caldo_pollo,Caldo de pollo,chayote,60
+caldo_pollo,Caldo de pollo,papa,50
+caldo_pollo,Caldo de pollo,cebolla,15
+caldo_pollo,Caldo de pollo,cilantro,5
+caldo_pollo,Caldo de pollo,arroz,30
+caldo_pollo,Caldo de pollo,limon,10
+agua_naranja,Agua de naranja,naranja,250
