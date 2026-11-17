@@ -81,7 +81,7 @@ def main(argv: list[str] | None = None) -> int:
         elif paso == "modelo":
             from . import modelo
             r = modelo.correr()
-            k1 = r["kpi1"][r["kpi1"]["modelo"].isin(["modelo", "ingenuo", "cobertura_intervalo_80"])]
+            k1 = r["kpi1"][r["kpi1"]["modelo"].isin(["modelo", "theta", "ingenuo", "cobertura_intervalo_80"])]
             print("\nKPI 1 (wRMSE %; cobertura en MAE_pct):\n", k1.round(2).to_string(index=False))
             print("\nKPI 2 (error % costo de menú):\n", r["kpi2"].round(2).to_string(index=False))
             log.info("Reporte en reports/modelo.md · pronósticos en gold/pronosticos.csv")

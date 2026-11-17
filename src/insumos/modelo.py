@@ -14,7 +14,8 @@ Validación (backtest con origen móvil, sin fuga de información)
 -------------------------------------------------------------
 Cada 13 semanas se reentrena con TODO lo anterior al corte (solo filas cuyo objetivo
 t+h ya se conocía al corte) y se pronostica las 13 semanas siguientes. Se compara contra:
-  ingenuo (precio de hoy), ingenuo estacional (cambio del año pasado) y media móvil 4 sem.
+  ingenuo (precio de hoy), ingenuo estacional (cambio del año pasado), media móvil 4 sem.
+  y el método Theta (ganador de la competencia M3; benchmark estadístico estándar).
 Métrica KPI 1: wRMSE en % del precio, ponderado por el peso del insumo en el costo de los menús.
 """
 from __future__ import annotations
@@ -38,7 +39,8 @@ SEMANAS_BACKTEST = 78       # ~18 meses de evaluación fuera de muestra
 REENTRENAR_CADA = 13        # semanas
 LAG_PUBLICACION_INPC = 4    # el INPC de un mes se conoce semanas después
 CAL_COLS = ["cuaresma", "semana_santa", "fiestas_patrias", "muertos", "guadalupe_reyes", "sem_sin", "sem_cos"]
-PARAMS = dict(max_iter=350, learning_rate=0.04, max_leaf_nodes=31, min_samples_leaf=40,
+# elegido en backtest entre 4 variantes (más simple/regularizado ganó a más complejo)
+PARAMS = dict(max_iter=350, learning_rate=0.04, max_leaf_nodes=15, min_samples_leaf=80,
               l2_regularization=1.0, random_state=0)
 
 
@@ -114,6 +116,44 @@ def _predecir(mods: dict, X: pd.DataFrame) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
+# Benchmark estadístico: método Theta (ganador de la competencia M3)
+# ---------------------------------------------------------------------------
+ALFAS = np.linspace(0.05, 0.95, 19)
+VENTANA_THETA = 156  # 3 años
+
+
+def theta_log(panel: pd.DataFrame) -> pd.DataFrame:
+    """Para cada (insumo, semana t): nivel SES y tendencia, para pronosticar log p(t+h) = nivel + 0.5*b*h.
+
+    Theta(0, 2): la línea theta=0 es la tendencia lineal (pendiente b) y la theta=2 se suaviza
+    con SES. El pronóstico combina ambas con igual peso. Alfa se elige por insumo y origen
+    minimizando el error a 1 paso en la ventana previa (sin ver el futuro).
+    """
+    df = panel[panel["fuente"].isin(FUENTES_MERCADO)][["insumo_id", "semana", "precio_kg_imp"]].copy()
+    df["lp"] = np.log(df["precio_kg_imp"])
+    filas = []
+    for ins, d in df.groupby("insumo_id"):
+        x = d["lp"].ffill().bfill().to_numpy()
+        n = len(x)
+        # SES para todas las alfas a la vez
+        niveles = np.empty((len(ALFAS), n))
+        niveles[:, 0] = x[0]
+        for t in range(1, n):
+            niveles[:, t] = ALFAS * x[t] + (1 - ALFAS) * niveles[:, t - 1]
+        err = (x[1:] - niveles[:, :-1]) ** 2  # error a 1 paso
+        err_acum = np.cumsum(err, axis=1)
+        t_idx = np.arange(n)
+        for t in range(26, n):
+            ini = max(0, t - VENTANA_THETA)
+            sse = err_acum[:, t - 1] - (err_acum[:, ini - 1] if ini > 0 else 0)
+            a = int(np.argmin(sse))
+            tt, xx = t_idx[ini:t + 1], x[ini:t + 1]
+            b = np.polyfit(tt, xx, 1)[0]
+            filas.append((ins, d["semana"].iloc[t], niveles[a, t], b))
+    return pd.DataFrame(filas, columns=["insumo_id", "semana", "theta_nivel", "theta_b"])
+
+
+# ---------------------------------------------------------------------------
 # Backtest
 # ---------------------------------------------------------------------------
 def backtest(panel: pd.DataFrame) -> pd.DataFrame:
@@ -145,6 +185,10 @@ def backtest(panel: pd.DataFrame) -> pd.DataFrame:
             filas.append(res)
             log.info("backtest h=%d corte=%s entren=%d prueba=%d", h, corte.date(), len(entren), len(prueba))
     bt = pd.concat(filas, ignore_index=True)
+    th = theta_log(panel)
+    bt = bt.merge(th, on=["insumo_id", "semana"], how="left")
+    bt["theta"] = np.exp(bt["theta_nivel"] + 0.5 * bt["theta_b"] * bt["h"])
+    bt["theta"] = bt["theta"].fillna(bt["ingenuo"])
     # media móvil bien calculada con toda la historia
     mm = panel.assign(mm4=panel.groupby("insumo_id")["precio_kg_imp"].transform(
         lambda s: s.rolling(4, min_periods=1).mean()))[["insumo_id", "semana", "mm4"]]
@@ -186,12 +230,12 @@ def ajuste_final(bt: pd.DataFrame) -> dict[int, float]:
 def metricas_kpi1(bt: pd.DataFrame, pesos: pd.Series) -> pd.DataFrame:
     filas = []
     for h, d in bt.groupby("h"):
-        for nombre in ("modelo_p50", "ingenuo", "ingenuo_estacional", "media_movil_4"):
+        for nombre in ("modelo_p50", "theta", "ingenuo", "ingenuo_estacional", "media_movil_4"):
             err = 100 * (d[nombre] - d["precio_obj"]) / d["precio_obj"]
             rmse = np.sqrt((err ** 2).groupby(d["insumo_id"]).mean())
             w = pesos.reindex(rmse.index).fillna(0)
             ok = w > 0
-            filas.append({"horizonte_sem": h, "modelo": nombre.replace("_p50", ""),
+            filas.append({"horizonte_sem": h, "modelo": {"modelo_p50": "boosting"}.get(nombre, nombre),
                           "wRMSE_pct": float(np.sqrt((w[ok] * rmse[ok] ** 2).sum() / w[ok].sum())),
                           "RMSE_pct_sin_ponderar": float(rmse.mean()),
                           "MAE_pct": float(err.abs().mean())})
@@ -202,6 +246,7 @@ def metricas_kpi1(bt: pd.DataFrame, pesos: pd.Series) -> pd.DataFrame:
                       "RMSE_pct_sin_ponderar": np.nan, "MAE_pct": 100 * cob})
     t = pd.DataFrame(filas)
     base = t[t["modelo"] == "ingenuo"].set_index("horizonte_sem")["wRMSE_pct"]
+    t["modelo"] = t["modelo"].replace({"boosting": "modelo"})
     t["mejora_vs_ingenuo_pct"] = 100 * (1 - t["wRMSE_pct"] / t["horizonte_sem"].map(base))
     return t
 
