@@ -1,0 +1,79 @@
+platillo_id,platillo,insumo_id,gramos_por_porcion
+sopa_arroz,Sopa de arroz,arroz,50
+sopa_arroz,Sopa de arroz,jitomate,30
+sopa_arroz,Sopa de arroz,cebolla,10
+sopa_arroz,Sopa de arroz,ajo,2
+sopa_arroz,Sopa de arroz,zanahoria,15
+sopa_arroz,Sopa de arroz,aceite,8
+sopa_fideo,Sopa de fideo,fideo,40
+sopa_fideo,Sopa de fideo,jitomate,60
+sopa_fideo,Sopa de fideo,cebolla,10
+sopa_fideo,Sopa de fideo,ajo,2
+sopa_fideo,Sopa de fideo,aceite,8
+frijoles_olla,Frijoles de olla,frijol_negro,60
+frijoles_olla,Frijoles de olla,cebolla,10
+pollo_salsa_verde,Pollo en salsa verde,pollo_pierna_muslo,200
+pollo_salsa_verde,Pollo en salsa verde,tomate_verde,120
+pollo_salsa_verde,Pollo en salsa verde,chile_serrano,10
+pollo_salsa_verde,Pollo en salsa verde,cebolla,20
+pollo_salsa_verde,Pollo en salsa verde,ajo,3
+pollo_salsa_verde,Pollo en salsa verde,cilantro,5
+pollo_salsa_verde,Pollo en salsa verde,aceite,10
+bistec_mexicana,Bistec a la mexicana,res_bistec,150
+bistec_mexicana,Bistec a la mexicana,jitomate,80
+bistec_mexicana,Bistec a la mexicana,cebolla,40
+bistec_mexicana,Bistec a la mexicana,chile_serrano,10
+bistec_mexicana,Bistec a la mexicana,aceite,10
+tinga_pollo,Tostadas de tinga,pechuga_pollo,150
+tinga_pollo,Tostadas de tinga,jitomate,100
+tinga_pollo,Tostadas de tinga,cebolla,60
+tinga_pollo,Tostadas de tinga,tortilla,60
+tinga_pollo,Tostadas de tinga,crema,20
+tinga_pollo,Tostadas de tinga,lechuga,30
+tinga_pollo,Tostadas de tinga,aceite,10
+huevos_mexicana,Huevos a la mexicana,huevo,110
+huevos_mexicana,Huevos a la mexicana,jitomate,80
+huevos_mexicana,Huevos a la mexicana,cebolla,20
+huevos_mexicana,Huevos a la mexicana,chile_serrano,10
+huevos_mexicana,Huevos a la mexicana,frijol_negro,40
+huevos_mexicana,Huevos a la mexicana,tortilla,90
+huevos_mexicana,Huevos a la mexicana,aceite,10
+calabacitas_mexicana,Calabacitas a la mexicana,calabacita,200
+calabacitas_mexicana,Calabacitas a la mexicana,jitomate,60
+calabacitas_mexicana,Calabacitas a la mexicana,cebolla,20
+calabacitas_mexicana,Calabacitas a la mexicana,chile_serrano,5
+calabacitas_mexicana,Calabacitas a la mexicana,queso_fresco,30
+calabacitas_mexicana,Calabacitas a la mexicana,aceite,8
+chile_relleno,Chile relleno,chile_poblano,200
+chile_relleno,Chile relleno,queso_fresco,80
+chile_relleno,Chile relleno,huevo,60
+chile_relleno,Chile relleno,jitomate,100
+chile_relleno,Chile relleno,cebolla,15
+chile_relleno,Chile relleno,aceite,30
+enchiladas_verdes,Enchiladas verdes,tortilla,120
+enchiladas_verdes,Enchiladas verdes,pechuga_pollo,80
+enchiladas_verdes,Enchiladas verdes,tomate_verde,120
+enchiladas_verdes,Enchiladas verdes,chile_serrano,10
+enchiladas_verdes,Enchiladas verdes,crema,30
+enchiladas_verdes,Enchiladas verdes,queso_fresco,20
+enchiladas_verdes,Enchiladas verdes,cebolla,15
+enchiladas_verdes,Enchiladas verdes,aceite,10
+picadillo,Picadillo,res_molida,120
+picadillo,Picadillo,papa,80
+picadillo,Picadillo,zanahoria,50
+picadillo,Picadillo,jitomate,60
+picadillo,Picadillo,cebolla,15
+picadillo,Picadillo,ajo,2
+picadillo,Picadillo,aceite,8
+ensalada_nopales,Ensalada de nopales,nopal,150
+ensalada_nopales,Ensalada de nopales,jitomate,50
+ensalada_nopales,Ensalada de nopales,cebolla,20
+ensalada_nopales,Ensalada de nopales,cilantro,5
+ensalada_nopales,Ensalada de nopales,queso_fresco,20
+guacamole,Guacamole,aguacate,80
+guacamole,Guacamole,jitomate,20
+guacamole,Guacamole,cebolla,10
+guacamole,Guacamole,cilantro,3
+guacamole,Guacamole,limon,10
+guacamole,Guacamole,chile_serrano,5
+agua_limon,Agua de limón,limon,60

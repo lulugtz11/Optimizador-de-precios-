@@ -1,0 +1,15 @@
+platillo_id,tiempo,precio_venta
+sopa_arroz,entrada,30
+sopa_fideo,entrada,30
+frijoles_olla,guarnicion,25
+pollo_salsa_verde,plato_fuerte,95
+bistec_mexicana,plato_fuerte,110
+tinga_pollo,plato_fuerte,85
+huevos_mexicana,plato_fuerte,70
+calabacitas_mexicana,plato_fuerte,65
+chile_relleno,plato_fuerte,95
+enchiladas_verdes,plato_fuerte,85
+picadillo,plato_fuerte,85
+ensalada_nopales,entrada,50
+guacamole,guarnicion,35
+agua_limon,bebida,20

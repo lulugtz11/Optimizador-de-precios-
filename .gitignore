@@ -1,0 +1,26 @@
+# sistema
+.DS_Store
+Thumbs.db
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# secretos
+.env
+
+# datos (se regeneran con el pipeline; los de fondas son confidenciales)
+data/**
+!data/**/
+!data/**/.gitkeep
+data_sample/
+reports/*_SINTETICO.md
+
+# editores
+.vscode/
+.idea/
