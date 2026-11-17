@@ -547,8 +547,8 @@ function renderMenu() {
     el("h2", {}, "Arma tu menú de la semana"), el("p", { class: "lead" }, "Pon tu presupuesto y cuántos platillos quieres ofrecer. Probamos todas las combinaciones con los precios pronosticados a " + hLabel(h) + " y te damos las que caben, priorizando margen, variedad y poco riesgo de que suban los precios."),
     el("div", { class: "card" }, el("div", { class: "row" }, inp("presupuesto", "Presupuesto semanal ($)", 500, 130), inp("comensales", "Comensales al día"), inp("dias", "Días a la semana"), inp("precio", "Precio de tu comida ($)", 5), inp("nf", "Platos fuertes"), inp("ne", "Entradas/sopas"), inp("nb", "Bebidas"), inp("ng", "Guarniciones"), el("label", {}, "Platillos", cat)),
       el("div", { style: "margin-top:10px" }, excl), resumen),
-    el("h3", { style: "margin:18px 0 8px" }, "Propuestas del optimizador"), salida,
-    el("h3", { style: "margin:22px 0 8px" }, "Propuestas de LLM"), llmBox);
+    el("h2", { style: "margin:26px 0 10px;font-size:26px" }, "Propuestas del optimizador"), salida,
+    el("h2", { style: "margin:30px 0 10px;font-size:26px" }, "Propuestas de LLM"), llmBox);
   calcular();
 }
 
