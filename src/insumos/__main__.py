@@ -13,6 +13,8 @@
     python -m insumos modelo           # backtest + KPIs + pronóstico a 12 semanas (~3 min)
     python -m insumos dashboard        # genera app/dashboard.html (se abre con doble clic)
     python -m insumos menus_llm        # Claude propone menús; el código los verifica (ANTHROPIC_API_KEY)
+    python -m insumos menus_nube       # lo mismo para fondas reales con cuenta (Supabase + ANTHROPIC_API_KEY)
+    python -m insumos kpis_nube        # KPIs con fondas reales, agregados (reports/kpis_nube.md)
     python -m insumos todo             # todo lo anterior en orden
     python -m insumos demo             # corre gold/costeo/calidad con datos SIMULADOS (data_sample/)
 """
@@ -33,13 +35,15 @@ def _cargar_env() -> None:
             linea = linea.strip()
             if linea and not linea.startswith("#") and "=" in linea:
                 k, v = linea.split("=", 1)
-                os.environ.setdefault(k.strip(), v.strip().strip('"'))
+                v = v.split(" #", 1)[0].strip().strip('"')  # quita comentarios al final de la línea
+                if v:  # una línea vacía (p. ej. copiada de .env.example) no tapa a otra con valor
+                    os.environ.setdefault(k.strip(), v)
 
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="insumos", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("comando", choices=["productos", "ingesta", "silver", "gold", "costeo", "calidad", "fondas", "inegi", "pecuarios", "modelo", "estados", "dashboard", "menus_llm", "todo", "demo"])
+    p.add_argument("comando", choices=["productos", "ingesta", "silver", "gold", "costeo", "calidad", "fondas", "inegi", "pecuarios", "modelo", "estados", "dashboard", "menus_llm", "menus_nube", "kpis_nube", "todo", "demo"])
     p.add_argument("--desde", default=config.FECHA_INICIO_DEFAULT)
     p.add_argument("--hasta", default=None)
     p.add_argument("--solo", nargs="*", help="insumo_id a descargar (default: todos)")
@@ -88,6 +92,20 @@ def main(argv: list[str] | None = None) -> int:
                 for p in props:
                     print(f"{fid} · {p['titulo']}: {', '.join(p['platillos'])} · ${p['costo_semanal']:,.0f}/sem · "
                           f"{'CABE' if p['cabe'] else 'NO CABE'}{'' if p['composicion_ok'] else ' · composición incompleta'}")
+        elif paso == "menus_nube":
+            from . import menus_llm
+            for nombre, r in menus_llm.generar_nube().items():
+                print(f"{nombre}: {r['menus']} menús · {r['caben']} caben · "
+                      f"{'personalizados con su historial' if r['personalizada'] else 'sin historial'}")
+        elif paso == "kpis_nube":
+            from . import kpis_nube
+            k = kpis_nube.correr()
+            print(f"Fondas activas: {k['fondas_activas']}")
+            if "kpi2" in k:
+                print(f"KPI 2 real: error medio {k['kpi2']['error_medio_pct']}% · "
+                      f"dentro del rango {k['kpi2']['dentro_del_rango_pct']}%")
+            if "kpi3" in k:
+                print(f"KPI 3: {k['kpi3']['aceptados_pct']}% de menús aceptados")
         elif paso == "dashboard":
             from . import dashboard
             ruta = dashboard.construir()

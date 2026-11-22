@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from datetime import date
 
 import numpy as np
@@ -127,6 +128,10 @@ def construir() -> str:
         "insumos": insumos, "recetario": _recetario(), "fondas": _fondas(), "kpis": _kpis(),
         "menus_llm": json.loads(f_llm.read_text(encoding="utf-8")) if f_llm.exists() else {},
         "food_cost_ref": 0.32,
+        # Cuentas en la nube (opcional). La llave anon es pública por diseño: los datos los
+        # protegen los permisos por fila de supabase/esquema.sql. NUNCA pongas aquí la llave de servicio.
+        "nube": ({"url": os.environ["SUPABASE_URL"], "anon": os.environ["SUPABASE_ANON_KEY"]}
+                 if os.environ.get("SUPABASE_URL") and os.environ.get("SUPABASE_ANON_KEY") else None),
     }
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     plantilla = (APP / "plantilla_dashboard.html").read_text(encoding="utf-8")

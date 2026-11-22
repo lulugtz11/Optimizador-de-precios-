@@ -104,6 +104,17 @@ details{margin-top:8px} summary{cursor:pointer;color:var(--navy);font-weight:600
 .preset:hover{background:#f3ecdf}
 .antes{color:var(--muted);text-decoration:line-through;font-weight:400;font-size:.6em;margin-left:8px}
 footer{color:var(--muted);font-size:12px;padding:0 38px 30px}
+.linkbtn{font:inherit;background:none;border:0;padding:0;color:var(--navy);text-decoration:underline;cursor:pointer}
+.priv-overlay{position:fixed;inset:0;background:rgba(3,38,79,.72);z-index:20;display:flex;align-items:center;justify-content:center;padding:20px}
+.priv-box{background:var(--card);max-width:660px;width:100%;max-height:90vh;overflow:auto;border-radius:16px;padding:24px 28px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.priv-box h2{font:700 24px/1.1 var(--head);text-transform:uppercase;color:var(--navy);margin:0 0 6px}
+.priv-box h3{font-size:15px;margin:16px 0 4px;color:var(--navy)}
+.priv-box ul{margin:4px 0 0;padding-left:20px}
+.priv-box li{margin:2px 0}
+.priv-check{display:flex;gap:10px;align-items:flex-start;background:#f6efe3;border-radius:10px;padding:10px 12px;margin-top:12px;cursor:pointer}
+.priv-check input{margin-top:3px;accent-color:var(--navy);width:18px;height:18px;flex:none}
+.priv-box label:not(.priv-check){display:inline-flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2)}
+.priv-acciones{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:18px}
 @media print{header nav,.filtros,.noprint,.stripe{display:none!important}body{background:#fff}.card{border:0}}
 </style>
 </head>
@@ -167,7 +178,7 @@ const fmtP = (x, d = 0) => x == null || isNaN(x) ? "—" : (x > 0 ? "+" : "") + 
 const hLabel = h => ({ 1: "1 semana", 4: "1 mes", 8: "2 meses", 12: "3 meses" })[h] || h + " semanas";
 function clave(k) { return "fondas:" + S.fonda + ":" + k; }
 function leer(k, def) { try { const v = localStorage.getItem(clave(k)); return v ? JSON.parse(v) : def; } catch (e) { return def; } }
-function guardar(k, v) { try { localStorage.setItem(clave(k), JSON.stringify(v)); } catch (e) {} }
+function guardar(k, v) { if (!privAceptada()) return; try { localStorage.setItem(clave(k), JSON.stringify(v)); } catch (e) {} }
 function descargarCSV(nombre, filas) {
   const esc = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const blob = new Blob(["﻿" + filas.map(r => r.map(esc).join(",")).join("\n")], { type: "text/csv" });
@@ -176,6 +187,218 @@ function descargarCSV(nombre, filas) {
   try { navigator.clipboard.writeText(filas.map(r => r.map(esc).join(",")).join("\n")).then(() => aviso("CSV copiado al portapapeles (pégalo en Excel o Sheets)"), () => {}); } catch (e) {}
 }
 function aviso(txt) { const t = el("div", { role: "status", style: "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#03264f;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;z-index:9" }, txt); document.body.append(t); setTimeout(() => t.remove(), 3500); }
+
+/* ---------- aviso de privacidad y autorizaciones ---------- */
+// Si cambia el texto del aviso, sube AVISO_VERSION: el usuario tendrá que aceptarlo de nuevo.
+const AVISO_VERSION = D.nube && D.nube.url ? 2 : 1;  // la versión con nube cambia el texto
+const PRIV_KEY = "fondas:privacidad";
+function leerPriv() { try { return JSON.parse(localStorage.getItem(PRIV_KEY)) || null; } catch (e) { return null; } }
+function guardarPriv(p) { try { localStorage.setItem(PRIV_KEY, JSON.stringify(p)); } catch (e) {} }
+function privAceptada() { const p = leerPriv(); return !!(p && p.version === AVISO_VERSION && p.aceptado); }
+function autorizaMejora() { const p = leerPriv(); return !!(p && p.mejora); }
+function textoAviso() {
+  return [
+    el("h3", {}, "Qué datos capturas"),
+    el("ul", {}, el("li", {}, "Tu presupuesto, número de comensales y tus platillos con sus recetas y precios de venta."),
+      el("li", {}, "Cuánto gastaste cada semana y si aceptas o rechazas los menús sugeridos.")),
+    el("h3", {}, "Qué no te pedimos"),
+    el("p", { class: "small", style: "margin:0" }, "Nombre, RFC, dirección, teléfono ni datos bancarios."),
+    el("h3", {}, "Dónde se guardan"),
+    D.nube && D.nube.url
+      ? el("p", { class: "small", style: "margin:0" }, "En este dispositivo y, si creas una cuenta, en una base de datos segura en la nube. Solo tú puedes ver los datos de tu fonda; ningún otro fondero puede verlos. El equipo del proyecto los usa de forma agregada para medir si la herramienta funciona. Para la cuenta solo pedimos un correo y una contraseña, y tu correo nunca se guarda junto a los datos de tu fonda.")
+      : el("p", { class: "small", style: "margin:0" }, "Solo en este dispositivo, en tu navegador. No se envían a ningún servidor. Si nos compartes un archivo (por ejemplo, tu historial de gasto), lo haces tú, cuando quieras."),
+    D.nube && D.nube.url ? el("h3", {}, "Cuánto tiempo") : "",
+    D.nube && D.nube.url ? el("p", { class: "small", style: "margin:0" }, "Si cancelas tu cuenta, tus datos se borran definitivamente 30 días después. Todos los datos de fondas se borran al terminar el proyecto.") : "",
+    el("h3", {}, "Para qué se usan"),
+    el("p", { class: "small", style: "margin:0" }, "Para calcular el costo de tus platillos, sugerirte menús que quepan en tu presupuesto y mostrarte qué tan cerca estuviste de lo que planeaste. Para proponer menús, al modelo de lenguaje solo le llega el tipo de fonda, sus platillos y sus costos, nunca quién eres."),
+    el("h3", {}, "Tus derechos"),
+    el("p", { class: "small", style: "margin:0" }, "Puedes revisar este aviso, cambiar tu autorización o borrar todos tus datos de este dispositivo en cualquier momento desde «Privacidad y mis datos», al pie de la página.")
+  ];
+}
+function mostrarAviso(revision) {
+  const previo = leerPriv() || {};
+  const acepto = el("input", { type: "checkbox", checked: revision && privAceptada() });
+  const mejora = el("input", { type: "checkbox", checked: !!previo.mejora });
+  const btn = el("button", { class: "btn", disabled: !acepto.checked }, revision ? "Guardar" : "Aceptar y continuar");
+  acepto.addEventListener("change", () => { btn.disabled = !acepto.checked; });
+  let confirmarBorrado = false;
+  const borrar = el("button", { class: "btn no", on: { click: () => {
+    if (!confirmarBorrado) { confirmarBorrado = true; borrar.textContent = "¿Seguro? Toca otra vez para borrar todo"; return; }
+    Object.keys(localStorage).filter(k => k.startsWith("fondas:")).forEach(k => localStorage.removeItem(k));
+    location.reload();
+  } } }, "Borrar mis datos de este dispositivo");
+  const caja = el("div", { class: "priv-box", role: "dialog", "aria-modal": "true", "aria-labelledby": "priv-titulo" },
+    el("h2", { id: "priv-titulo" }, "Aviso de privacidad"),
+    el("p", { class: "lead", style: "margin:0" }, "Antes de empezar, esto es lo que hacemos con tu información."),
+    textoAviso(),
+    el("label", { class: "priv-check" }, acepto, el("span", {}, el("b", {}, "Leí y acepto el aviso de privacidad."), el("br"), el("span", { class: "small" }, "Es necesario para usar la herramienta."))),
+    el("label", { class: "priv-check" }, mejora, el("span", {}, el("b", {}, "Opcional: autorizo que mis respuestas a los menús se usen para mejorar las recomendaciones que me da la herramienta."), el("br"), el("span", { class: "small" }, "Solo se usan para tu fonda, nunca para la de otros. Es una autorización aparte: puedes quitarla cuando quieras y la herramienta funciona igual."))),
+    el("div", { class: "priv-acciones" },
+      revision ? borrar : "",
+      revision ? el("button", { class: "btn sec", on: { click: () => overlay.remove() } }, "Cerrar") : "",
+      btn));
+  const overlay = el("div", { class: "priv-overlay" }, caja);
+  btn.addEventListener("click", () => {
+    const ahora = new Date().toISOString();
+    guardarPriv({ version: AVISO_VERSION, aceptado: previo.version === AVISO_VERSION && previo.aceptado ? previo.aceptado : ahora,
+      mejora: mejora.checked, fecha_mejora: mejora.checked !== !!previo.mejora ? ahora : (previo.fecha_mejora || null) });
+    subirConsentimiento(true);
+    if (!revision && NUBE.activa && !NUBE.sesion) setTimeout(mostrarCuenta, 400);
+    overlay.remove(); aviso(mejora.checked ? "Listo. Usaremos tus respuestas para mejorar tus recomendaciones." : NUBE.activa ? "Listo, guardamos tu decisión." : "Listo. Tus datos se quedan solo en este dispositivo.");
+    pintar();
+  });
+  document.body.append(overlay); acepto.focus();
+}
+
+/* ---------- cuenta en la nube (opcional) ----------
+   Se activa solo si al generar el tablero existen SUPABASE_URL y SUPABASE_ANON_KEY en .env.
+   La llave "anon" es pública por diseño: lo que protege los datos son los permisos por fila
+   (Row Level Security) de supabase/esquema.sql. Sin esas variables, todo queda solo en el dispositivo. */
+const NUBE = { activa: !!(D.nube && D.nube.url && D.nube.anon), cli: null, sesion: null, fonda: null, propuestas: null };
+const MOTIVOS = { "Muy caro": "muy_caro", "No le gusta a mis clientes": "no_le_gusta", "Muy repetitivo": "repetitivo", "No sé prepararlo": "no_se_preparar", "Otro": "otro" };
+const MOTIVO_TXT = Object.fromEntries(Object.entries(MOTIVOS).map(([k, v]) => [v, k]));
+const ALCALDIAS = ["Álvaro Obregón", "Azcapotzalco", "Benito Juárez", "Coyoacán", "Cuajimalpa de Morelos", "Cuauhtémoc", "Gustavo A. Madero", "Iztacalco", "Iztapalapa", "La Magdalena Contreras", "Miguel Hidalgo", "Milpa Alta", "Tláhuac", "Tlalpan", "Venustiano Carranza", "Xochimilco"];
+const TIPOS = { comida_corrida: "Comida corrida", antojitos: "Antojitos", desayunos: "Desayunos" };
+function clDe(fonda, k) { return "fondas:" + fonda + ":" + k; }
+function guardarDe(fonda, k, v) { if (!privAceptada()) return; try { localStorage.setItem(clDe(fonda, k), JSON.stringify(v)); } catch (e) {} }
+function enNube() { return !!(NUBE.cli && NUBE.sesion && NUBE.fonda); }
+function cargarSupabase() {
+  return new Promise((ok, mal) => {
+    if (window.supabase) return ok();
+    const sc = el("script", { src: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" });
+    sc.onload = ok; sc.onerror = () => mal(new Error("sin conexión")); document.head.append(sc);
+  });
+}
+async function iniciarNube() {
+  if (!NUBE.activa) return;
+  try { await cargarSupabase(); } catch (e) { aviso("No hay conexión: tus datos se guardan solo en este dispositivo por ahora."); return; }
+  NUBE.cli = window.supabase.createClient(D.nube.url, D.nube.anon);
+  const { data } = await NUBE.cli.auth.getSession();
+  NUBE.sesion = data.session;
+  if (NUBE.sesion) await cargarMiFonda();
+}
+async function cargarMiFonda() {
+  const { data, error } = await NUBE.cli.from("fondas").select("*").maybeSingle();
+  if (error) { aviso("No se pudo leer tu fonda: " + error.message); return; }
+  NUBE.fonda = data;
+  if (!data) return;
+  activarOpcionCuenta();
+  // la nube es la fuente de verdad de la cuenta: se copian sus datos a este dispositivo
+  const id = data.id;
+  const [pl, rs, gs, pr] = await Promise.all([
+    NUBE.cli.from("platillos").select("*").eq("fonda_id", id),
+    NUBE.cli.from("respuestas_menu").select("*").eq("fonda_id", id).order("registrada_en"),
+    NUBE.cli.from("gastos").select("*").eq("fonda_id", id).order("semana"),
+    NUBE.cli.from("propuestas_menu").select("*").eq("fonda_id", id).order("generada_en", { ascending: false }).limit(1)]);
+  if (!pl.error) guardarDe("cuenta", "propios", Object.fromEntries(pl.data.map(p => [p.clave_local, { nombre: p.nombre, tiempo: p.tiempo, precio: p.precio_venta, ing: p.ingredientes }])));
+  if (!rs.error) guardarDe("cuenta", "feedback", rs.data.map(r => ({ fecha: r.registrada_en, ok: r.acepto, titulo: r.menu_titulo, motivo: r.motivo ? MOTIVO_TXT[r.motivo] : "", h: r.horizonte_sem })));
+  if (!gs.error) guardarDe("cuenta", "gastos", gs.data.map(g => ({ fecha: g.semana, plan: +g.plan, plan_lo: +g.plan_min, plan_hi: +g.plan_max, real: +g.real, menu: g.menu_titulo || "" })));
+  NUBE.propuestas = !pr.error && pr.data.length ? pr.data[0].menus : null;
+  await subirConsentimiento(false);
+}
+function activarOpcionCuenta() {
+  const sel = $("#f-fonda");
+  if (!sel.querySelector('option[value="cuenta"]')) sel.prepend(el("option", { value: "cuenta" }, "Mi fonda (mi cuenta)"));
+  sel.value = "cuenta"; S.fonda = "cuenta"; S.platillo = null; pintar();
+}
+async function subirConsentimiento(forzar) {
+  if (!enNube() || !privAceptada()) return;
+  const p = leerPriv();
+  if (!forzar) {
+    const { data } = await NUBE.cli.from("consentimiento_actual").select("*").eq("fonda_id", NUBE.fonda.id).maybeSingle();
+    if (data && data.aviso_version === p.version && data.autoriza_mejora === !!p.mejora) return;
+  }
+  const { error } = await NUBE.cli.from("consentimientos").insert({ fonda_id: NUBE.fonda.id, aviso_version: p.version, autoriza_mejora: !!p.mejora });
+  if (error) aviso("No se pudo guardar tu autorización: " + error.message);
+}
+async function subirRespuesta(ok, titulo, motivo, ids) {
+  if (!enNube() || S.fonda !== "cuenta") return;
+  const { error } = await NUBE.cli.from("respuestas_menu").insert({ fonda_id: NUBE.fonda.id, horizonte_sem: S.h, menu_titulo: String(titulo).slice(0, 80),
+    platillos: ids || [], acepto: ok, motivo: ok ? null : (MOTIVOS[motivo] || "otro") });
+  if (error) aviso("Se guardó en este dispositivo, pero no en la nube: " + error.message);
+}
+async function subirGasto(g) {
+  if (!enNube() || S.fonda !== "cuenta") return;
+  const { error } = await NUBE.cli.from("gastos").insert({ fonda_id: NUBE.fonda.id, semana: g.fecha, plan: g.plan, plan_min: g.plan_lo, plan_max: g.plan_hi, real: g.real, menu_titulo: String(g.menu || "").slice(0, 80) });
+  if (error) aviso("Se guardó en este dispositivo, pero no en la nube: " + error.message);
+}
+async function subirPlatillo(pid, p) {
+  if (!enNube() || S.fonda !== "cuenta") return;
+  const { error } = await NUBE.cli.from("platillos").upsert({ fonda_id: NUBE.fonda.id, clave_local: pid, nombre: p.nombre.slice(0, 80), tiempo: p.tiempo,
+    precio_venta: p.precio || null, ingredientes: p.ing, actualizado_en: new Date().toISOString() }, { onConflict: "fonda_id,clave_local" });
+  if (error) aviso("Se guardó en este dispositivo, pero no en la nube: " + error.message);
+}
+function mostrarCuenta() {
+  if (!NUBE.activa) return;
+  if (!privAceptada()) { mostrarAviso(false); return; }
+  if (!NUBE.cli) { aviso("Conectando con la nube… intenta de nuevo en unos segundos."); iniciarNube(); return; }
+  const msg = el("p", { class: "small", role: "status", style: "margin:8px 0 0" });
+  const caja = el("div", { class: "priv-box", role: "dialog", "aria-modal": "true", "aria-labelledby": "cta-titulo" });
+  const overlay = el("div", { class: "priv-overlay" }, caja);
+  const cerrar = () => overlay.remove();
+  const btnCerrar = () => el("button", { class: "btn sec", type: "button", on: { click: cerrar } }, "Cerrar");
+  function vistaEntrar() {
+    const correo = el("input", { type: "email", autocomplete: "email", style: "width:100%" });
+    const clave = el("input", { type: "password", autocomplete: "current-password", minlength: 8, style: "width:100%" });
+    const entrar = async (nueva) => {
+      msg.textContent = "Un momento…";
+      if (!correo.value || clave.value.length < 8) { msg.textContent = "Escribe tu correo y una contraseña de al menos 8 caracteres."; return; }
+      const r = nueva ? await NUBE.cli.auth.signUp({ email: correo.value, password: clave.value })
+                      : await NUBE.cli.auth.signInWithPassword({ email: correo.value, password: clave.value });
+      if (r.error) { msg.textContent = r.error.message; return; }
+      if (!r.data.session) { msg.textContent = "Te enviamos un correo para confirmar tu cuenta. Confírmala y luego entra aquí."; return; }
+      NUBE.sesion = r.data.session; await cargarMiFonda(); pintarVista();
+    };
+    caja.replaceChildren(el("h2", { id: "cta-titulo" }, "Mi cuenta"),
+      el("p", { class: "small" }, "Con una cuenta tus datos se guardan de forma segura en la nube y los ves desde cualquier dispositivo. Solo tú puedes verlos."),
+      el("label", { style: "display:block;margin-top:10px" }, "Correo", correo),
+      el("label", { style: "display:block;margin-top:10px" }, "Contraseña (mínimo 8 caracteres)", clave), msg,
+      el("div", { class: "priv-acciones" }, btnCerrar(),
+        el("button", { class: "btn sec", type: "button", on: { click: () => entrar(true) } }, "Crear cuenta"),
+        el("button", { class: "btn", type: "button", on: { click: () => entrar(false) } }, "Entrar")));
+    correo.focus();
+  }
+  function vistaPerfil() {
+    msg.textContent = "";
+    const f = NUBE.fonda || {};
+    const tipo = el("select", {}, Object.entries(TIPOS).map(([k, v]) => el("option", { value: k, selected: f.tipo === k }, v)));
+    const alc = el("select", {}, ALCALDIAS.map(a => el("option", { selected: f.alcaldia === a }, a)));
+    const com = el("input", { type: "number", min: 1, value: f.comensales_dia || 60, style: "width:100px" });
+    const pres = el("input", { type: "number", min: 1, step: 100, value: f.presupuesto_semanal || 10000, style: "width:120px" });
+    const pc = el("input", { type: "number", min: 1, step: 5, value: f.precio_comida || 90, style: "width:100px" });
+    let confirmar = false;
+    const cancelar = el("button", { class: "btn no", type: "button", on: { click: async () => {
+      if (!confirmar) { confirmar = true; cancelar.textContent = "¿Seguro? Toca otra vez para cancelar tu cuenta"; return; }
+      const { error } = await NUBE.cli.rpc("cancelar_mi_cuenta");
+      if (error) { msg.textContent = error.message; return; }
+      await NUBE.cli.auth.signOut();
+      Object.keys(localStorage).filter(k => k.startsWith("fondas:cuenta:")).forEach(k => localStorage.removeItem(k));
+      location.reload();
+    } } }, "Cancelar mi cuenta");
+    const guardarPerfil = async () => {
+      const datos = { tipo: tipo.value, alcaldia: alc.value, comensales_dia: parseInt(com.value, 10), presupuesto_semanal: parseFloat(pres.value), precio_comida: parseFloat(pc.value) };
+      if (!(datos.comensales_dia > 0 && datos.presupuesto_semanal > 0 && datos.precio_comida > 0)) { msg.textContent = "Revisa que todos los números sean mayores a cero."; return; }
+      const r = NUBE.fonda ? await NUBE.cli.from("fondas").update(datos).eq("id", NUBE.fonda.id).select().single()
+                           : await NUBE.cli.from("fondas").insert({ ...datos, owner: NUBE.sesion.user.id }).select().single();
+      if (r.error) { msg.textContent = r.error.message; return; }
+      const nueva = !NUBE.fonda; NUBE.fonda = r.data;
+      if (nueva) { await subirConsentimiento(true); activarOpcionCuenta(); } else pintar();
+      msg.textContent = "Listo, guardado.";
+    };
+    caja.replaceChildren(el("h2", { id: "cta-titulo" }, NUBE.fonda ? "Mi fonda" : "Datos de tu fonda"),
+      el("p", { class: "small" }, "Sesión: " + NUBE.sesion.user.email + ". Solo pedimos categorías: nada de nombre, RFC ni dirección."),
+      el("div", { class: "row", style: "margin-top:10px" }, el("label", {}, "Tipo", tipo), el("label", {}, "Alcaldía", alc)),
+      el("div", { class: "row", style: "margin-top:10px" }, el("label", {}, "Comensales al día", com), el("label", {}, "Presupuesto semanal ($)", pres), el("label", {}, "Precio de la comida ($)", pc)),
+      msg,
+      el("div", { class: "priv-acciones" },
+        NUBE.fonda ? cancelar : "",
+        el("button", { class: "btn sec", type: "button", on: { click: async () => { await NUBE.cli.auth.signOut(); location.reload(); } } }, "Cerrar sesión"),
+        btnCerrar(), el("button", { class: "btn", type: "button", on: { click: guardarPerfil } }, NUBE.fonda ? "Guardar" : "Crear mi fonda")),
+      NUBE.fonda ? el("p", { class: "small", style: "margin-top:10px" }, "Si cancelas tu cuenta, tus datos se borran definitivamente 30 días después.") : "");
+  }
+  function pintarVista() { if (NUBE.sesion) vistaPerfil(); else vistaEntrar(); }
+  pintarVista(); document.body.append(overlay);
+}
 
 /* ---------- precios ---------- */
 const ESC = {}; let USAR_ESC = true;  // escenario "¿y si…?": factor multiplicativo sobre el precio futuro
@@ -194,6 +417,8 @@ function nombreIns(id) { return INS[id] ? INS[id].nombre : id; }
 function fondaActual() {
   const f = D.fondas.find(x => x.id === S.fonda);
   if (f) return f;
+  if (S.fonda === "cuenta" && NUBE.fonda) { const c = NUBE.fonda;
+    return { id: "cuenta", nombre: "Mi fonda", tipo: c.tipo, alcaldia: c.alcaldia, comensales: c.comensales_dia, merma: +c.merma, presupuesto: +c.presupuesto_semanal, precio_comida: +c.precio_comida, menu: [], recetas: {} }; }
   return { id: "nueva", nombre: "Mi fonda nueva", tipo: "comida_corrida", alcaldia: "", comensales: 60, merma: 0.12, presupuesto: 10000, precio_comida: 90, menu: [], recetas: {} };
 }
 function platillosFonda() {
@@ -448,7 +673,7 @@ function renderPlatillos() {
         const ing = [...ingBox.querySelectorAll(".ingrow")].map(r => [r.children[0].value, parseFloat(r.children[1].value)]).filter(x => x[1] > 0);
         if (!nombre.value.trim() || !ing.length) { alerta.textContent = "Ponle nombre y al menos un ingrediente."; return; }
         const prop = leer("propios", {}), pid = "propio_" + Date.now(); prop[pid] = { nombre: nombre.value.trim(), tiempo: tiempo.value, precio: parseFloat(pv.value) || null, ing };
-        guardar("propios", prop); S.platillo = pid; renderPlatillos();
+        guardar("propios", prop); subirPlatillo(pid, prop[pid]); S.platillo = pid; renderPlatillos();
       } } }, "Guardar platillo")));
   const alerta = el("p", { class: "no-t small" });
   sec.replaceChildren(
@@ -526,12 +751,12 @@ function renderMenu() {
           el("div", { class: "small" }, fmt$(c.ev.semanal, 0) + " de " + fmt$(pres, 0) + (c.ev.semanal_hi > pres ? " · en el peor caso (" + fmt$(c.ev.semanal_hi, 0) + ") te pasarías" : " · cabe incluso en el peor caso")))),
       el("p", { class: "small", style: "margin:8px 0" }, ojo + bien),
       el("div", { class: "row noprint" },
-        el("button", { class: "btn ok", on: { click: () => { guardar("menu_activo", { ids, titulo, h: S.h, fecha: new Date().toISOString().slice(0, 10) }); registrar(true, titulo, ""); calcular(); } } }, "✔ Aceptar"),
-        motivo, el("button", { class: "btn no", on: { click: () => { registrar(false, titulo, motivo.value); resp.textContent = "Gracias, lo tomamos en cuenta."; } } }, "✖ Rechazar"), resp));
+        el("button", { class: "btn ok", on: { click: () => { guardar("menu_activo", { ids, titulo, h: S.h, fecha: new Date().toISOString().slice(0, 10) }); registrar(true, titulo, "", ids); calcular(); } } }, "✔ Aceptar"),
+        motivo, el("button", { class: "btn no", on: { click: () => { registrar(false, titulo, motivo.value, ids); resp.textContent = "Gracias, lo tomamos en cuenta."; } } }, "✖ Rechazar"), resp));
   }
-  function registrar(ok, titulo, motivo) { const fb = leer("feedback", []); fb.push({ fecha: new Date().toISOString(), ok, titulo, motivo, h: S.h }); guardar("feedback", fb); }
+  function registrar(ok, titulo, motivo, ids) { const fb = leer("feedback", []); fb.push({ fecha: new Date().toISOString(), ok, titulo, motivo, h: S.h }); guardar("feedback", fb); subirRespuesta(ok, titulo, motivo, ids); }
   function pintarLLM() {
-    const prop = (D.menus_llm || {})[f.id];
+    const prop = f.id === "cuenta" ? NUBE.propuestas : (D.menus_llm || {})[f.id];
     if (!prop || !prop.length) { llmBox.replaceChildren(el("div", { class: "note" }, "Aún no hay menús del LLM para esta fonda. Se generan con ", el("code", {}, "python -m insumos menus_llm"), ". El código siempre verifica el costo y descarta los que no caben.")); return; }
     const todos = catalogoCompleto(), activo = leer("menu_activo", null);
     const tarjetas = prop.map((m, i) => {
@@ -580,10 +805,11 @@ function renderCompras() {
       el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Insumo"), el("th", { class: "n" }, "Kilos"), el("th", { class: "n" }, "Precio esperado/kg"), el("th", { class: "n" }, "Costo esperado"), el("th", { class: "n" }, "Rango 80%"))),
         el("tbody", {}, filas.map(x => el("tr", {}, el("td", {}, nombreIns(x.id)), el("td", { class: "n" }, x.k.toFixed(1)), el("td", { class: "n" }, fmt$(precio(x.id, h))), el("td", { class: "n" }, fmt$(x.c, 0)), el("td", { class: "n small" }, INS[x.id].modelado ? fmt$(x.l, 0) + " – " + fmt$(x.u, 0) : "sin pronóstico")))),
         el("tfoot", {}, el("tr", {}, el("th", {}, "Total"), el("th"), el("th"), el("th", { class: "n" }, fmt$(tot, 0)), el("th", { class: "n" }, fmt$(totL, 0) + " – " + fmt$(totU, 0)))))),
-    el("div", { class: "card", style: "margin-top:16px" }, el("h3", {}, "Registra lo que gastaste de verdad"), el("p", { class: "small" }, "Con esto medimos qué tanto se acerca lo planeado a lo real (KPI 2) y reentrenamos el modelo."),
+    el("div", { class: "card", style: "margin-top:16px" }, el("h3", {}, "Registra lo que gastaste de verdad"), el("p", { class: "small" }, "Con esto ves qué tanto se acerca lo planeado a lo real, y nosotros medimos si la herramienta funciona (KPI 2)."),
       el("div", { class: "row noprint" }, el("label", {}, "Semana de compra", fecha), el("label", {}, "Gasto real ($)", real),
-        el("button", { class: "btn", on: { click: () => { const v = parseFloat(real.value); if (!(v > 0)) { msg.textContent = "Escribe cuánto gastaste."; return; } const g = leer("gastos", []); g.push({ fecha: fecha.value, plan: Math.round(tot), plan_lo: Math.round(totL), plan_hi: Math.round(totU), real: v, menu: activo ? activo.titulo : "menú actual" }); guardar("gastos", g); renderCompras(); } } }, "Guardar"), msg,
-        gastos.length ? el("button", { class: "btn sec", on: { click: () => descargarCSV("gasto_real.csv", [["fecha", "plan", "plan_min", "plan_max", "real", "error_pct", "menu"]].concat(gastos.map(g => [g.fecha, g.plan, g.plan_lo, g.plan_hi, g.real, (100 * (g.real - g.plan) / g.real).toFixed(1), g.menu]))) } }, "Descargar historial") : ""),
+        el("button", { class: "btn", on: { click: () => { const v = parseFloat(real.value); if (!(v > 0)) { msg.textContent = "Escribe cuánto gastaste."; return; } const g = leer("gastos", []); g.push({ fecha: fecha.value, plan: Math.round(tot), plan_lo: Math.round(totL), plan_hi: Math.round(totU), real: v, menu: activo ? activo.titulo : "menú actual" }); guardar("gastos", g); subirGasto(g[g.length - 1]); renderCompras(); } } }, "Guardar"), msg,
+        gastos.length ? el("button", { class: "btn sec", on: { click: () => descargarCSV("gasto_real.csv", [["fonda", "fecha", "plan", "plan_min", "plan_max", "real", "error_pct", "menu", "autoriza_mejora"]].concat(gastos.map(g => [S.fonda, g.fecha, g.plan, g.plan_lo, g.plan_hi, g.real, (100 * (g.real - g.plan) / g.real).toFixed(1), g.menu, autorizaMejora() ? "si" : "no"]))) } }, "Descargar historial") : "",
+        leer("feedback", []).length ? el("button", { class: "btn sec", on: { click: () => descargarCSV("respuestas_menus.csv", [["fonda", "fecha", "acepto", "menu", "motivo", "horizonte_sem", "autoriza_mejora"]].concat(leer("feedback", []).map(r => [S.fonda, r.fecha.slice(0, 10), r.ok ? "si" : "no", r.titulo, r.motivo, r.h, autorizaMejora() ? "si" : "no"]))) } }, "Descargar mis respuestas a menús") : ""),
       gastos.length ? el("table", { style: "margin-top:10px" }, el("thead", {}, el("tr", {}, el("th", {}, "Semana"), el("th", { class: "n" }, "Planeado"), el("th", { class: "n" }, "Real"), el("th", { class: "n" }, "Error"), el("th", {}, "¿Dentro del rango?"))),
         el("tbody", {}, gastos.slice().reverse().map(g => el("tr", {}, el("td", {}, g.fecha), el("td", { class: "n" }, fmt$(g.plan, 0)), el("td", { class: "n" }, fmt$(g.real, 0)), el("td", { class: "n" }, fmtP(100 * (g.real - g.plan) / g.real, 1)),
           el("td", {}, g.real >= g.plan_lo && g.real <= g.plan_hi ? el("span", { class: "ok-t" }, "✔ sí") : el("span", { class: "no-t" }, "✖ no"))))) ) : ""));
@@ -741,8 +967,12 @@ selF.addEventListener("change", () => { S.fonda = selF.value; S.platillo = null;
 document.querySelectorAll("#f-h button").forEach(b => { b.setAttribute("aria-pressed", +b.dataset.h === S.h); b.addEventListener("click", () => { S.h = +b.dataset.h; document.querySelectorAll("#f-h button").forEach(x => x.setAttribute("aria-pressed", x === b)); pintar(); }); });
 $("#sub").textContent = "Precios de la Central de Abasto · pronóstico a 12 semanas · semana del " + new Date(D.semana_actual + "T12:00").toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
 $("#f-nota").textContent = "Las fondas son simuladas; los precios son reales.";
-$("#pie").textContent = "Capstone CDA I · ITAM · Barba, Reyes, García-Gayou, Gutiérrez, Contreras · Las sugerencias apoyan, no sustituyen, el criterio del fondero.";
+$("#pie").textContent = "Capstone CDA I · ITAM · Barba, Reyes, García-Gayou, Gutiérrez, Contreras · Las sugerencias apoyan, no sustituyen, el criterio del fondero. · ";
+$("#pie").append(el("button", { class: "linkbtn", on: { click: () => mostrarAviso(true) } }, "Privacidad y mis datos"));
+if (NUBE.activa) $("#pie").append(" · ", el("button", { class: "linkbtn", on: { click: mostrarCuenta } }, "Mi cuenta"));
 pintar();
+if (!privAceptada()) mostrarAviso(false);
+iniciarNube();
 </script>
 </body>
 </html>
