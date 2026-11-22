@@ -12,6 +12,12 @@ Flujo (lo que prometimos en la E2):
 
 Al LLM nunca le llegan datos personales: solo el perfil (tipo, tamaño, alcaldía), los platillos y costos.
 Salida: data/gold/menus_llm.json  ·  bitácora de prompts/respuestas en data/bronze/llm/
+
+Fondas reales con cuenta en la nube (python -m insumos menus_nube):
+- Se generan menús para cada fonda con cuenta vigente y se guardan en SU fila de propuestas_menu.
+- Si la fonda dio la autorización opcional, el prompt incluye SU historial (qué aceptó y qué rechazó
+  y por qué). Es solo de esa fonda: nunca se mezclan fondas ni se entrena ningún modelo.
+- Sin autorización, el prompt es el mismo que para cualquier fonda (perfil, platillos y costos).
 """
 from __future__ import annotations
 
@@ -87,7 +93,26 @@ def costo_semanal(ids: list[str], cat: dict, comensales: int, merma: float) -> f
     return por_comida * (1 + merma) * comensales * DIAS
 
 
-def _prompt(fonda: pd.Series, cat: list[dict], hoy: dict, p_h: dict, comp: dict) -> str:
+MOTIVOS_TXT = {"muy_caro": "le pareció muy caro", "no_le_gusta": "no le gusta a sus clientes",
+               "repetitivo": "le pareció repetitivo", "no_se_preparar": "no sabe prepararlo", "otro": "otro motivo"}
+
+
+def bloque_historial(hist: list[dict], cat: list[dict]) -> str:
+    """Resume el historial de UNA fonda para el prompt. Solo títulos, platillos y motivos: nada personal."""
+    if not hist:
+        return ""
+    nombres = {p["id"]: p["nombre"] for p in cat}
+    nom = lambda ids: ", ".join(nombres.get(i, i) for i in ids) or "sin detalle"
+    acept = [h for h in hist if h["acepto"]][:5]
+    rech = [h for h in hist if not h["acepto"]][:8]
+    lineas = [f'- Aceptó "{h["menu_titulo"]}" ({nom(h.get("platillos") or [])})' for h in acept]
+    lineas += [f'- Rechazó "{h["menu_titulo"]}" ({nom(h.get("platillos") or [])}): {MOTIVOS_TXT.get(h.get("motivo"), "sin motivo")}'
+               for h in rech]
+    return ("\nHISTORIAL DE ESTA FONDA (solo suyo; la fonda autorizó usarlo para mejorar SUS recomendaciones):\n"
+            + "\n".join(lineas) + "\n")
+
+
+def _prompt(fonda: pd.Series, cat: list[dict], hoy: dict, p_h: dict, comp: dict, historial: str = "") -> str:
     usados = {i for p in cat for i, _ in p["ing"]}
     cambios = sorted(((i, 100 * (p_h[i] / hoy[i] - 1)) for i in usados if i in hoy and hoy[i]), key=lambda x: x[1])
     baja = ", ".join(f"{i} ({c:+.0f}%)" for i, c in cambios[:5] if c < -3) or "ninguno"
@@ -107,11 +132,12 @@ PRONÓSTICO DE PRECIOS (Central de Abasto, a {HORIZONTE} semanas):
 
 PLATILLOS DISPONIBLES (id | nombre | tiempo | costo | precio | origen | ingredientes):
 {chr(10).join(lineas)}
-
+{historial}
 REGLAS:
 - Cada menú lleva exactamente: {composicion} (usa los ids tal cual).
 - Prefiere platillos que la fonda ya vende; puedes sugerir 1 del recetario si conviene por precio.
 - Aprovecha insumos que bajan, evita depender de los que suben, y da variedad de proteína.
+{"- Toma en cuenta su historial: repite lo que le funcionó y evita lo que rechazó (si fue por caro, baja el costo; si fue repetitivo, varía)." if historial else ""}
 - NO calcules totales ni costos semanales: el sistema los calcula y descarta lo que no cabe.
 - Usa la herramienta proponer_menus para responder con exactamente 3 menús: "titulo" (máx 5 palabras),
   "platillos" (lista de ids) y "razon" (1-2 frases cortas en español sencillo para el fondero).
@@ -179,6 +205,96 @@ def verificar(props: list[dict], cat: dict, comp: dict, presupuesto: float, come
     return out
 
 
+def _proponer(fonda: pd.Series, cat: list[dict], comp: dict, prompt: str, bitacora) -> list[dict] | None:
+    """Llama a Claude (2 intentos), guarda la bitácora y verifica costos con código."""
+    crudos = None
+    for intento in (1, 2):
+        try:
+            resp = _llamar(prompt)
+            sello = datetime.now().strftime("%Y%m%d_%H%M%S")
+            (bitacora / f"{fonda['fonda_id']}_{sello}.json").write_text(json.dumps(
+                {"prompt": prompt, "stop_reason": resp.get("stop_reason"), "usage": resp.get("usage"),
+                 "respuesta": resp.get("content")}, ensure_ascii=False, indent=1), encoding="utf-8")
+            crudos = extraer(resp)
+            break
+        except (ValueError, KeyError, json.JSONDecodeError) as e:
+            log.warning("%s: respuesta inválida (intento %d): %s", fonda["fonda_id"], intento, e)
+    if not crudos:
+        log.error("%s: sin menús de Claude; se omite esta fonda", fonda["fonda_id"])
+        return None
+    return verificar(crudos, {p["id"]: p for p in cat}, comp, float(fonda["presupuesto_semanal"]),
+                     int(fonda["comensales_dia"]), float(fonda["merma"]))
+
+
+def _catalogo_nube(platillos: list[dict]) -> list[dict]:
+    """Platillos que la fonda capturó en su cuenta + recetario (igual que _catalogo)."""
+    base_rec = pd.read_csv(config.PLANTILLAS_DIR / "recetas_ejemplo.csv")
+    base_men = pd.read_csv(config.PLANTILLAS_DIR / "menus_ejemplo.csv").set_index("platillo_id")
+    out = [{"id": p["clave_local"], "nombre": p["nombre"], "tiempo": p["tiempo"],
+            "precio_venta": float(p["precio_venta"] or 0), "en_su_menu": True,
+            "ing": [(i, float(g)) for i, g in (p["ingredientes"] or [])]} for p in platillos if p.get("ingredientes")]
+    for pid, d in base_rec.groupby("platillo_id"):
+        if pid not in base_men.index:
+            continue
+        out.append({"id": pid, "nombre": d["platillo"].iloc[0], "tiempo": base_men.loc[pid, "tiempo"],
+                    "precio_venta": float(base_men.loc[pid, "precio_venta"]),
+                    "ing": list(zip(d["insumo_id"], d["gramos_por_porcion"])), "en_su_menu": False})
+    return out
+
+
+UUID = re.compile(r"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})_")
+
+
+def limpiar_bitacoras(bitacora, activas: set[str], autorizan: set[str]) -> int:
+    """Borra bitácoras de prompts que ya no deben guardarse:
+    - de fondas que cancelaron su cuenta: todas;
+    - de fondas que retiraron su autorización: las que contienen su historial.
+    Solo toca bitácoras de fondas reales (nombre con UUID); las de fondas simuladas no se tocan."""
+    borradas = 0
+    for f in bitacora.glob("*.json"):
+        m = UUID.match(f.name)
+        if not m:
+            continue
+        fid = m.group(1)
+        if fid not in activas or (fid not in autorizan and "HISTORIAL DE ESTA FONDA" in f.read_text(encoding="utf-8")):
+            f.unlink()
+            borradas += 1
+    return borradas
+
+
+def generar_nube() -> dict:
+    """Menús para las fondas reales con cuenta. Cada fonda solo usa SU información."""
+    from . import nube
+
+    hoy, p_h = _precios(HORIZONTE)
+    bitacora = config.bronze() / "llm"
+    bitacora.mkdir(parents=True, exist_ok=True)
+    fondas = nube.fondas_activas()
+    autorizan = {f["id"] for f in fondas if nube.autoriza_mejora(f["id"])}
+    n = limpiar_bitacoras(bitacora, {f["id"] for f in fondas}, autorizan)
+    if n:
+        log.info("Bitácoras borradas (cuentas canceladas o autorización retirada): %d", n)
+    resumen = {}
+    for f in fondas:
+        fonda = pd.Series({"fonda_id": f["id"], "nombre": "fonda " + f["id"][:8], "tipo": f["tipo"],
+                           "comensales_dia": f["comensales_dia"], "alcaldia": f["alcaldia"],
+                           "presupuesto_semanal": float(f["presupuesto_semanal"]), "merma": float(f["merma"])})
+        cat = _costear(_catalogo_nube(nube.platillos(f["id"])), hoy, p_h)
+        comp = COMPOSICION.get(fonda["tipo"], COMPOSICION["comida_corrida"])
+        comp = {t: min(n, sum(p["tiempo"] == t for p in cat)) for t, n in comp.items()}
+        # El historial entra al prompt SOLO si el consentimiento vigente lo autoriza.
+        hist = nube.historial(f["id"]) if f["id"] in autorizan else []
+        prompt = _prompt(fonda, cat, hoy, p_h, comp, bloque_historial(hist, cat))
+        props = _proponer(fonda, cat, comp, prompt, bitacora)
+        if props is None:
+            continue
+        nube.guardar_propuestas(f["id"], props, HORIZONTE, personalizada=bool(hist))
+        resumen[fonda["nombre"]] = {"menus": len(props), "caben": sum(p["cabe"] for p in props), "personalizada": bool(hist)}
+        log.info("%s: %d menús (%s) · %d caben", fonda["nombre"], len(props),
+                 "con su historial" if hist else "sin historial", resumen[fonda["nombre"]]["caben"])
+    return resumen
+
+
 def generar() -> dict:
     f = config.fondas()
     fondas, menus, recetas = (pd.read_csv(f / x) for x in ("fondas.csv", "menus.csv", "recetas.csv"))
@@ -192,23 +308,9 @@ def generar() -> dict:
         comp = COMPOSICION.get(fonda["tipo"], COMPOSICION["comida_corrida"])
         comp = {t: min(n, sum(p["tiempo"] == t for p in cat)) for t, n in comp.items()}
         prompt = _prompt(fonda, cat, hoy, p_h, comp)
-        crudos = None
-        for intento in (1, 2):
-            try:
-                resp = _llamar(prompt)
-                sello = datetime.now().strftime("%Y%m%d_%H%M%S")
-                (bitacora / f"{fonda['fonda_id']}_{sello}.json").write_text(json.dumps(
-                    {"prompt": prompt, "stop_reason": resp.get("stop_reason"), "usage": resp.get("usage"),
-                     "respuesta": resp.get("content")}, ensure_ascii=False, indent=1), encoding="utf-8")
-                crudos = extraer(resp)
-                break
-            except (ValueError, KeyError, json.JSONDecodeError) as e:
-                log.warning("%s: respuesta inválida (intento %d): %s", fonda["fonda_id"], intento, e)
-        if not crudos:
-            log.error("%s: sin menús de Claude; se omite esta fonda", fonda["fonda_id"])
+        props = _proponer(fonda, cat, comp, prompt, bitacora)
+        if props is None:
             continue
-        props = verificar(crudos, {p["id"]: p for p in cat}, comp, float(fonda["presupuesto_semanal"]),
-                          int(fonda["comensales_dia"]), float(fonda["merma"]))
         salida[fonda["fonda_id"]] = props
         log.info("%s: %d menús de Claude · %d caben en el presupuesto", fonda["nombre"], len(props),
                  sum(p["cabe"] for p in props))
