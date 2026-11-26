@@ -813,9 +813,15 @@ function optimizar(P) {
     const ev = evaluarMenu(sel, P);
     const prot = new Set(cf.map(p => p.ing.map(([id]) => PROTE[id]).find(Boolean) || "verdura")).size;
     const riesgo = (ev.hi - ev.costo) / ev.costo;
-    cands.push({ sel, ev, score: ev.margen * (1 - 0.5 * riesgo) + 3 * prot, prot, riesgo });
+    // margen contando lo que podría cambiar: mitad el esperado, mitad el del peor caso (rango 80%)
+    const margenPeor = P.precio - ev.hi * (1 + P.merma);
+    const cabePeor = ev.semanal_hi <= P.presupuesto;
+    cands.push({ sel, ev, score: 0.5 * ev.margen + 0.5 * margenPeor + 3 * prot, prot, riesgo, cabePeor, margenPeor });
   }
-  return { cands, caben: cands.filter(c => c.ev.semanal <= P.presupuesto).sort((a, b) => b.score - a.score) };
+  // 1) las que caben incluso en el peor caso, por margen (esperado y peor caso) y variedad;
+  // 2) las que solo caben con el precio esperado, de la que menos se pasaría en el peor caso a la que más
+  const orden = (a, b) => (b.cabePeor - a.cabePeor) || (a.cabePeor ? b.score - a.score : (a.ev.semanal_hi - b.ev.semanal_hi) || (b.score - a.score));
+  return { cands, caben: cands.filter(c => c.ev.semanal <= P.presupuesto).sort(orden) };
 }
 function renderMenu() {
   const sec = $("#tab-menu"), f = fondaActual(), h = S.h, P = parametrosMenu();
@@ -846,7 +852,7 @@ function renderMenu() {
     const resp = el("span", { class: "small" });
     return el("div", { class: "opcion" + (esActivo ? " activa" : "") },
       el("div", { class: "op-head" }, el("div", { style: "display:flex;align-items:center;gap:10px" }, el("span", { class: "op-num" }, num || "★"), el("h4", {}, titulo)),
-        esActivo ? el("span", { class: "badge flat", style: "background:var(--amber);color:var(--navy)" }, "Menú activo") : el("span", { class: "badge " + (cabePeor ? "down" : "flat"), style: cabePeor ? "" : "background:#fff1d6;color:var(--amber-ink)" }, cabePeor ? "Cabe siempre" : "Ajustado")),
+        esActivo ? el("span", { class: "badge flat", style: "background:var(--amber);color:var(--navy)" }, "Menú activo") : cabePeor ? el("span", { class: "badge down" }, "Cabe siempre") : ""),
       extra || "",
       el("div", { class: "platos" }, c.sel.map(p => el("span", { class: "chip" }, el("b", {}, ({ entrada: "Entrada", plato_fuerte: "Fuerte", guarnicion: "Guarn.", bebida: "Bebida" })[p.tiempo] || ""), p.nombre))),
       el("div", { class: "op-stats" },
@@ -879,7 +885,7 @@ function renderMenu() {
     llmBox.replaceChildren(...tarjetas);
   }
   sec.replaceChildren(
-    el("h2", {}, "Arma tu menú de la semana"), el("p", { class: "lead" }, "Pon tu presupuesto y cuántos platillos quieres ofrecer. Probamos todas las combinaciones con los precios pronosticados a " + hLabel(h) + " y te damos las que caben, priorizando margen, variedad y poco riesgo de que suban los precios."),
+    el("h2", {}, "Arma tu menú de la semana"), el("p", { class: "lead" }, "Pon tu presupuesto y cuántos platillos quieres ofrecer. Probamos todas las combinaciones con los precios pronosticados a " + hLabel(h) + ". Primero van las que caben incluso si los precios salen en su peor caso (ordenadas por margen, contando también el peor caso, y variedad de proteínas). Después, las que solo caben con el precio esperado, de la que menos se pasaría a la que más."),
     el("div", { class: "card" }, el("div", { class: "row" }, inp("presupuesto", "Presupuesto semanal ($)", 500, 130), inp("comensales", "Comensales al día"), inp("dias", "Días a la semana"), inp("precio", "Precio de tu comida ($)", 5), inp("nf", "Platos fuertes"), inp("ne", "Entradas/sopas"), inp("nb", "Bebidas"), inp("ng", "Guarniciones"), el("label", {}, "Platillos", cat)),
       el("div", { style: "margin-top:10px" }, excl), resumen),
     el("div", { class: "sec-t" }, el("h2", {}, "Propuestas del optimizador"), nOpt), salida,
