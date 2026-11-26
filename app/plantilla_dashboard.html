@@ -19,18 +19,25 @@ body{margin:0;background:var(--cream);color:var(--ink);font:15px/1.45 var(--body
 .stripe{position:fixed;left:0;top:0;bottom:0;width:10px;display:flex;flex-direction:column;z-index:5}
 .stripe i{flex:1}.stripe i:nth-child(1){background:var(--coral)}.stripe i:nth-child(2){background:var(--green)}
 .stripe i:nth-child(3){background:var(--amber)}.stripe i:nth-child(4){background:var(--brown)}
-header{background:var(--navy);color:#fff;padding:18px 28px 0 38px}
+header{background:var(--navy);color:#fff;padding:20px 28px 16px 38px}
+.marca{display:flex;align-items:center;gap:14px}
+.logo{width:52px;height:52px;border-radius:14px;background:var(--amber);display:flex;align-items:center;justify-content:center;flex:none}
+.logo svg{width:30px;height:30px;fill:none;stroke:var(--navy);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 header h1{font:700 30px/1.05 var(--head);letter-spacing:.5px;margin:0;text-transform:uppercase}
 header h1 span{color:var(--amber)}
-header .sub{color:#c9d3e0;margin:6px 0 14px;font-size:14px}
-nav{display:flex;gap:4px;flex-wrap:wrap}
-nav button{font:600 14px var(--body);background:transparent;color:#c9d3e0;border:0;border-bottom:3px solid transparent;padding:10px 14px;cursor:pointer}
-nav button:hover{color:#fff}
-nav button[aria-selected=true]{color:#fff;border-bottom-color:var(--amber)}
+.chips-head{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.hchip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,.1);color:#dbe3ee}
+.hchip.vivo{background:rgba(107,169,86,.22);color:#cde8c2}
+.hchip.vivo::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(107,169,86,.3)}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+nav button{display:inline-flex;align-items:center;gap:7px;font:600 14px var(--body);background:rgba(255,255,255,.08);color:#dbe3ee;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:8px 15px;cursor:pointer;transition:background .15s}
+nav button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+nav button:hover{background:rgba(255,255,255,.16);color:#fff}
+nav button[aria-selected=true]{background:var(--amber);border-color:var(--amber);color:var(--navy)}
 .filtros{display:flex;gap:18px;flex-wrap:wrap;align-items:end;padding:14px 28px 14px 38px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:4}
 .filtros label{display:flex;flex-direction:column;font-size:12px;color:var(--ink-2);gap:4px;font-weight:600}
 select,input[type=number],input[type=text],input[type=date]{font:14px var(--body);padding:7px 9px;border:1px solid #d6ccbb;border-radius:8px;background:#fff;color:var(--ink);min-width:0}
-.seg{display:inline-flex;border:1px solid #d6ccbb;border-radius:8px;overflow:hidden;background:#fff}
+.seg{display:inline-flex;border:1px solid #d6ccbb;border-radius:999px;overflow:hidden;background:#fff}
 .seg button{border:0;background:#fff;padding:7px 12px;font:600 13px var(--body);color:var(--ink-2);cursor:pointer}
 .seg button[aria-pressed=true]{background:var(--navy);color:#fff}
 main{padding:22px 28px 60px 38px;max-width:1280px}
@@ -41,10 +48,45 @@ h3{font:600 16px var(--body);margin:0 0 8px;color:var(--navy)}
 .grid{display:grid;gap:16px}
 .g4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
 .g2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
-.tile .lab{font-size:13px;color:var(--ink-2)}
-.tile .val{font:600 30px/1.15 var(--body);margin:4px 0 2px;color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.tile{position:relative;overflow:hidden;padding-top:20px}
+.tile::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:var(--navy)}
+.g4>.tile:nth-child(4n+1)::before{background:var(--coral)}.g4>.tile:nth-child(4n+2)::before{background:var(--green)}
+.g4>.tile:nth-child(4n+3)::before{background:var(--amber)}.g4>.tile:nth-child(4n+4)::before{background:var(--brown)}
+.tile .lab{font-size:13px;color:var(--ink-2);font-weight:600}
+.tile .val{font:700 38px/1.1 var(--head);margin:6px 0 4px;color:var(--navy);letter-spacing:.3px}
 .tile .del{font-size:13px;font-weight:600}
+.tile.hero::before{display:none}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.badge.up{background:#fde3e6;color:var(--coral-ink)}.badge.down{background:#e3f0dc;color:var(--green-ink)}.badge.flat{background:#efe8dc;color:var(--ink-2)}
+.sem{background:var(--navy);color:#fff;border:0;display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;margin-bottom:16px}
+.sem .big{font:700 58px/1 var(--head);color:var(--amber)}
+.sem .big.mal{color:#ff8a98}.sem .big.bien{color:#9fd98a}
+.sem .lab{color:#c9d3e0;font-size:13px;font-weight:600}
+.sem .meter{height:16px;background:rgba(255,255,255,.14);margin:10px 0 6px}
+.sem .meter i{background:var(--amber)}.sem .meter u{background:#fff;opacity:.35}
+.sem .tope{position:absolute;top:-3px;bottom:-3px;width:3px;background:#fff;border-radius:2px}
+.sem .pie{display:flex;justify-content:space-between;font-size:13px;color:#c9d3e0;flex-wrap:wrap;gap:6px}
+.insrow{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--grid)}
+.insrow:last-child{border-bottom:0}
+.insrow .nom{font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.insrow .px{font-size:13.5px;color:var(--ink);margin-top:2px;font-variant-numeric:tabular-nums}
+.barra{height:8px;border-radius:999px;background:#efe8dc;overflow:hidden;margin-top:6px}
+.barra i{display:block;height:100%;border-radius:999px}
+.plrow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 84px;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--grid)}
+.plrow:last-child{border-bottom:0}
+.plrow>.badge{justify-self:end}
+@media (max-width:640px){.sem{grid-template-columns:1fr}.g-op{grid-template-columns:1fr}.plrow{grid-template-columns:1fr 70px}.plrow>div:nth-child(2){grid-column:1/-1;grid-row:2}header h1{font-size:22px}}
+.fc{position:relative;height:12px;border-radius:999px;background:#e3f0dc;overflow:hidden}
+.fc i{position:absolute;left:0;top:0;bottom:0;background:var(--navy);border-radius:999px}
+.fc b{position:absolute;top:0;bottom:0;background:var(--coral);opacity:.75}
+.stat{background:#f6efe3;border-radius:12px;padding:10px 12px}
+.stat .v{font:700 28px/1.1 var(--head);color:var(--navy);letter-spacing:.3px}
+.stat .v.ok{color:var(--green-ink)}
+.donut{flex:none}
+.sec-t{display:flex;align-items:center;gap:10px;margin:28px 0 12px}
+.sec-t h2{margin:0;font-size:26px}
+.sec-t .n{font:600 13px var(--body);background:var(--navy);color:#fff;border-radius:999px;padding:3px 10px}
 .up{color:var(--coral-ink)} .down{color:var(--green-ink)} .flat{color:var(--muted)}
 .hero{background:var(--navy);color:#fff;border:0}
 .hero .val{font:700 64px/1 var(--head);color:var(--amber)}
@@ -59,20 +101,28 @@ tr.click{cursor:pointer}tr.click:hover{background:#f6efe2}tr.sel{background:#f1e
 .alert{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--grid)}
 .alert:last-child{border-bottom:0}
 .ico{font-weight:700;width:22px;text-align:center}
-.btn{font:600 14px var(--body);border-radius:9px;border:1px solid var(--navy);background:var(--navy);color:#fff;padding:8px 14px;cursor:pointer}
+.btn{font:600 14px var(--body);border-radius:999px;border:1px solid var(--navy);background:var(--navy);color:#fff;padding:8px 14px;cursor:pointer}
 .btn.sec{background:#fff;color:var(--navy)} .btn.ok{background:var(--green-ink);border-color:var(--green-ink)}
 .btn.no{background:#fff;color:var(--coral-ink);border-color:var(--coral-ink)}
 .btn:disabled{opacity:.45;cursor:default}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
-.opcion{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--card)}
+.opcion{border:1px solid var(--line);border-radius:16px;padding:16px 18px;background:var(--card);display:flex;flex-direction:column}
 .opcion.activa{outline:3px solid var(--amber)}
-.opcion h4{font:700 17px var(--head);text-transform:uppercase;margin:0 0 6px;color:var(--navy)}
+.opcion h4{font:700 19px var(--head);text-transform:uppercase;margin:0;color:var(--navy);letter-spacing:.3px}
+.op-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.op-num{width:34px;height:34px;border-radius:10px;background:var(--navy);color:var(--amber);font:700 18px var(--head);display:flex;align-items:center;justify-content:center;flex:none}
+.op-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:4px 0 12px}
+.op-pres{margin-bottom:10px}
+.op-tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.opcion .row{margin-top:auto}
+.g-op{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(440px,1fr))}
 .platos{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
 .chip{font-size:13px;background:#f3ecdf;border-radius:8px;padding:3px 9px}
 .chip b{font-weight:600;color:var(--ink-2);margin-right:4px;font-size:11px;text-transform:uppercase}
-.meter{height:10px;border-radius:6px;background:#e6edf5;position:relative;overflow:hidden;margin:6px 0 4px}
-.meter i{position:absolute;left:0;top:0;bottom:0;background:var(--navy);border-radius:6px}
-.meter u{position:absolute;top:0;bottom:0;background:var(--amber);opacity:.55}
+.meter{height:14px;border-radius:999px;background:#e6edf5;position:relative;overflow:hidden;margin:6px 0 4px}
+.meter i{position:absolute;left:0;top:0;bottom:0;background:var(--navy);border-radius:999px}
+.meter u{position:absolute;top:0;bottom:0;background:var(--amber);opacity:.7}
+.meter.pasa i{background:var(--coral)}
 .small{font-size:12.5px;color:var(--ink-2)}
 .muted{color:var(--muted)}
 .ok-t{color:var(--green-ink);font-weight:600}.no-t{color:var(--coral-ink);font-weight:600}
@@ -121,16 +171,21 @@ footer{color:var(--muted);font-size:12px;padding:0 38px 30px}
 <body>
 <div class="stripe" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <header>
-  <h1>Predicción de insumos <span>·</span> fondas CDMX</h1>
-  <p class="sub" id="sub"></p>
+  <div class="marca">
+    <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11h18a9 9 0 0 1-18 0zM8 7c0-1.5 1.5-1.5 1.5-3M12.5 7c0-1.5 1.5-1.5 1.5-3"/></svg></span>
+    <div>
+      <h1>Predicción de insumos <span>·</span> fondas CDMX</h1>
+      <div class="chips-head" id="sub"></div>
+    </div>
+  </div>
   <nav role="tablist" id="tabs">
-    <button role="tab" data-tab="inicio" aria-selected="true">Mi fonda</button>
-    <button role="tab" data-tab="precios">Precios y pronóstico</button>
-    <button role="tab" data-tab="platillos">Mis platillos</button>
-    <button role="tab" data-tab="menu">Armar menú</button>
-    <button role="tab" data-tab="compras">Compras y gasto</button>
-    <button role="tab" data-tab="simulador">¿Y si…?</button>
-    <button role="tab" data-tab="modelo">El modelo</button>
+    <button role="tab" data-tab="inicio" data-ico="home" aria-selected="true">Mi fonda</button>
+    <button role="tab" data-tab="precios" data-ico="chart">Precios y pronóstico</button>
+    <button role="tab" data-tab="platillos" data-ico="bowl">Mis platillos</button>
+    <button role="tab" data-tab="menu" data-ico="menu">Armar menú</button>
+    <button role="tab" data-tab="compras" data-ico="cart">Compras y gasto</button>
+    <button role="tab" data-tab="simulador" data-ico="sliders">¿Y si…?</button>
+    <button role="tab" data-tab="modelo" data-ico="chip">El modelo</button>
   </nav>
 </header>
 <div class="filtros">
@@ -565,11 +620,35 @@ function sparkline(id) {
 }
 
 function flecha(pct) {
-  if (Math.abs(pct) < 2) return el("span", { class: "flat" }, "● " + fmtP(pct));
-  return pct > 0 ? el("span", { class: "up" }, "▲ " + fmtP(pct)) : el("span", { class: "down" }, "▼ " + fmtP(pct));
+  if (isNaN(pct)) return el("span", { class: "badge flat" }, "—");
+  if (Math.abs(pct) < 2) return el("span", { class: "badge flat" }, "● " + fmtP(pct));
+  return pct > 0 ? el("span", { class: "badge up" }, "▲ " + fmtP(pct)) : el("span", { class: "badge down" }, "▼ " + fmtP(pct));
+}
+/* íconos de línea (pestañas) */
+const ICO = { home: "M3 11l9-8 9 8M5 10v10h14V10M10 20v-6h4v6", chart: "M3 3v18h18M7 15l4-4 3 3 6-7", bowl: "M3 11h18a9 9 0 0 1-18 0zM8 7c0-1.5 1.5-1.5 1.5-3M12.5 7c0-1.5 1.5-1.5 1.5-3",
+  menu: "M7 3v7a2 2 0 0 0 2 2v9M5 3v5M9 3v5M17 21V3c-2 1.5-3 4-3 7s1 4 3 4", cart: "M3 4h2l2.4 11h10.8L20 7H6.2M9 20h.01M17 20h.01",
+  sliders: "M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1M15 4v4M9 10v4M17 16v4", chip: "M7 7h10v10H7zM10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4" };
+function icono(k) { const s = sv("svg", { viewBox: "0 0 24 24", "aria-hidden": "true" }); s.append(sv("path", { d: ICO[k] || "" })); return s; }
+/* dona: porcentaje en anillo */
+function dona(pct, color, size = 64, texto) {
+  const r = size / 2 - 6, c = 2 * Math.PI * r, s = sv("svg", { viewBox: `0 0 ${size} ${size}`, width: size, height: size, class: "donut", role: "img", "aria-label": Math.round(pct) + "%" });
+  s.append(sv("circle", { cx: size / 2, cy: size / 2, r, fill: "none", stroke: "#efe8dc", "stroke-width": 8 }));
+  if (pct > 0.5) s.append(sv("circle", { cx: size / 2, cy: size / 2, r, fill: "none", stroke: color, "stroke-width": 8, "stroke-linecap": "round", "stroke-dasharray": (Math.max(0, Math.min(100, pct)) / 100 * c) + " " + c, transform: `rotate(-90 ${size / 2} ${size / 2})` }));
+  const t = sv("text", { x: size / 2, y: size / 2 + 5, "text-anchor": "middle", "font-size": size > 70 ? 17 : 14, "font-weight": 700, fill: "#03264f", "font-family": "Oswald, Arial Narrow, sans-serif" }); t.textContent = texto ?? Math.round(pct) + "%"; s.append(t);
+  return s;
 }
 
 /* ---------- 1. Mi fonda ---------- */
+// mismo cálculo que la lista de compras: menú activo (o todos tus platillos) × comensales × días × merma
+function gastoSemana() {
+  const f = fondaActual(), activo = leer("menu_activo", null), todos = catalogoCompleto(), h = S.h;
+  const P = Object.assign({ comensales: f.comensales, dias: 6, merma: f.merma }, leer("menu_params", {}));
+  const sel = activo ? activo.ids.map(pid => todos.find(p => p.pid === pid)).filter(Boolean) : platillosFonda();
+  const porT = {}; for (const p of sel) (porT[p.tiempo] = porT[p.tiempo] || []).push(p);
+  let tot = 0, l = 0, u = 0;
+  for (const lst of Object.values(porT)) { const porc = P.comensales * P.dias / lst.length; for (const p of lst) for (const [id, g] of p.ing) if (INS[id]) { const k = porc * g / 1000 * (1 + P.merma); tot += k * precio(id, h); l += k * lo(id, h); u += k * hi(id, h); } }
+  return { tot, l, u, pres: P.presupuesto || f.presupuesto, activo };
+}
 function renderInicio() {
   const sec = $("#tab-inicio"), f = fondaActual(), h = S.h, pls = platillosFonda();
   const usados = [...new Set(pls.flatMap(p => p.ing.map(x => x[0])))].filter(id => INS[id]);
@@ -577,29 +656,51 @@ function renderInicio() {
   const prom = a => a.filter(x => !isNaN(x)).reduce((s, x) => s + x, 0) / Math.max(1, a.filter(x => !isNaN(x)).length);
   const margen = (c) => prom(pls.map((p, i) => p.precio ? 100 * (1 - c[i] / p.precio) : NaN));
   const fb = leer("feedback", []), acept = fb.filter(x => x.ok).length;
+  // semáforo de la semana
+  const g = gastoSemana(), pasa = g.tot > g.pres, escala = Math.max(g.u, g.pres) * 1.05;
+  const pct = x => Math.min(100, 100 * x / escala);
+  const sem = el("div", { class: "card sem" },
+    el("div", {}, el("div", { class: "lab" }, pasa ? "Te pasarías del presupuesto" : "Te sobra del presupuesto"),
+      el("div", { class: "big " + (pasa ? "mal" : "bien") }, fmt$(Math.abs(g.tot - g.pres), 0)), el("div", { class: "lab" }, "compra de la semana en " + hLabel(h))),
+    el("div", {}, el("div", { class: "lab" }, "Compra esperada " + fmt$(g.tot, 0) + " vs presupuesto " + fmt$(g.pres, 0)),
+      el("div", { class: "meter", style: "position:relative;overflow:visible", role: "img", "aria-label": "Compra " + fmt$(g.tot, 0) + " de " + fmt$(g.pres, 0) },
+        el("u", { style: "left:" + pct(g.l) + "%;width:" + Math.max(0, pct(g.u) - pct(g.l)) + "%;border-radius:999px" }), el("i", { style: "width:" + pct(g.tot) + "%;" + (pasa ? "background:#ff8a98" : "") }), el("span", { class: "tope", style: "left:" + pct(g.pres) + "%" })),
+      el("div", { class: "pie" }, el("span", {}, "Rango 80%: " + fmt$(g.l, 0) + " – " + fmt$(g.u, 0)), el("span", {}, "▮ tope = tu presupuesto"), el("span", {}, g.activo ? "Con tu menú activo" : "Con todos tus platillos"))));
   const tiles = el("div", { class: "grid g4" },
     tile("Presupuesto semanal de compras", fmt$(f.presupuesto, 0), el("span", { class: "flat" }, f.comensales + " comensales al día")),
-    tile("Costo promedio por platillo", fmt$(prom(cH)), el("span", {}, "hoy " + fmt$(prom(cHoy)) + " · ", flecha(100 * (prom(cH) / prom(cHoy) - 1)), " en " + hLabel(h))),
-    tile("Margen promedio por platillo", margen(cH).toFixed(1) + "%", el("span", { class: "flat" }, "hoy " + margen(cHoy).toFixed(1) + "% · en " + hLabel(h))),
-    tile("Menús sugeridos aceptados (KPI 3)", fb.length ? Math.round(100 * acept / fb.length) + "%" : "—", el("span", { class: "flat" }, fb.length ? acept + " de " + fb.length + " respuestas" : "aún sin respuestas"))
-  );
+    tile("Costo promedio por platillo", fmt$(prom(cH)), el("span", {}, "hoy " + fmt$(prom(cHoy)) + " ", flecha(100 * (prom(cH) / prom(cHoy) - 1)), " en " + hLabel(h))),
+    tileDona("Margen promedio por platillo", margen(cH), margen(cH).toFixed(1) + "%", "hoy " + margen(cHoy).toFixed(1) + "% · en " + hLabel(h), "#3d7a2a"),
+    tileDona("Menús sugeridos aceptados (KPI 3)", fb.length ? 100 * acept / fb.length : 0, fb.length ? Math.round(100 * acept / fb.length) + "%" : "—", fb.length ? acept + " de " + fb.length + " respuestas" : "aún sin respuestas", "#fbb02d"));
   const orden = usados.map(id => ({ id, c: cambio(id, h) })).sort((a, b) => b.c - a.c);
-  const alerta = (o, sube) => el("div", { class: "alert" }, el("span", { class: "ico " + (sube ? "up" : "down") }, sube ? "▲" : "▼"),
-    el("div", {}, el("b", {}, nombreIns(o.id) + ": "), fmt$(precio(o.id, 0)) + " → " + fmt$(precio(o.id, h)) + "/kg ", el("b", { class: sube ? "up" : "down" }, "(" + fmtP(o.c) + ")"),
-      el("div", { class: "small" }, "Rango 80%: " + fmt$(lo(o.id, h)) + " – " + fmt$(hi(o.id, h)) + (INS[o.id].modelado ? "" : " · precio base × inflación"))));
+  const maxAbs = Math.max(10, ...orden.map(o => Math.abs(o.c)));
+  const fila = (o, sube) => el("div", { class: "insrow" },
+    el("div", {}, el("div", { class: "nom" }, nombreIns(o.id), flecha(o.c)),
+      el("div", { class: "px" }, fmt$(precio(o.id, 0)) + " → ", el("b", {}, fmt$(precio(o.id, h)) + "/kg")),
+      el("div", { class: "barra" }, el("i", { style: "width:" + (100 * Math.abs(o.c) / maxAbs) + "%;background:" + (sube ? "var(--coral)" : "var(--green)") })),
+      el("div", { class: "small muted", style: "margin-top:3px" }, "Rango 80%: " + fmt$(lo(o.id, h)) + " – " + fmt$(hi(o.id, h)) + (INS[o.id].modelado ? "" : " · precio base × inflación"))),
+    INS[o.id].modelado ? sparkline(o.id) : el("span"));
   const sube = orden.filter(o => o.c > 2).slice(0, 5), baja = orden.filter(o => o.c < -2).slice(-5).reverse();
   const afect = pls.map((p, i) => ({ p, d: 100 * (cH[i] / cHoy[i] - 1), dif: cH[i] - cHoy[i] })).filter(x => !isNaN(x.d)).sort((a, b) => b.d - a.d);
+  const plRow = x => { const c0 = costo(x.p.ing, 0), c1 = costo(x.p.ing, h), pv = x.p.precio || NaN, f0 = Math.min(100, 100 * c0 / pv), f1 = Math.min(100, 100 * c1 / pv);
+    return el("div", { class: "plrow" },
+      el("div", {}, el("div", { style: "font-weight:600" }, x.p.nombre), el("div", { class: "small" }, fmt$(c0) + " hoy → ", el("b", {}, fmt$(c1)), " en " + hLabel(h) + " · se vende en " + fmt$(x.p.precio, 0))),
+      isNaN(pv) ? el("span", { class: "small muted" }, "sin precio de venta") : el("div", { title: "Parte del precio de venta que se va en insumos" },
+        el("div", { class: "fc" }, el("i", { style: "width:" + Math.min(f0, f1) + "%" }), el("b", { style: "left:" + Math.min(f0, f1) + "%;width:" + Math.abs(f1 - f0) + "%;" + (f1 < f0 ? "background:var(--green)" : "") })),
+        el("div", { class: "small", style: "margin-top:3px" }, "insumos = " + f1.toFixed(0) + "% del precio")),
+      flecha(x.d)); };
   sec.replaceChildren(
     el("h2", {}, f.nombre), el("p", { class: "lead" }, [f.tipo.replace("_", " "), f.alcaldia].filter(Boolean).join(" · ") + ". Todo se calcula con precios reales de la Central de Abasto de la CDMX (SNIIM) y el pronóstico del modelo a " + hLabel(h) + "."),
-    tiles,
+    sem, tiles,
     el("div", { class: "grid g2", style: "margin-top:16px" },
-      el("div", { class: "card" }, el("h3", {}, "Lo que va a subir en " + hLabel(h)), el("p", { class: "small" }, "Insumos de tus platillos. Considera comprar antes o cambiar el platillo."), sube.length ? sube.map(o => alerta(o, true)) : el("p", { class: "muted" }, "Nada sube más de 2%.")),
-      el("div", { class: "card" }, el("h3", {}, "Lo que va a bajar en " + hLabel(h)), el("p", { class: "small" }, "Buen momento para meterlos al menú."), baja.length ? baja.map(o => alerta(o, false)) : el("p", { class: "muted" }, "Nada baja más de 2%."))),
+      el("div", { class: "card" }, el("h3", {}, "▲ Lo que va a subir en " + hLabel(h)), el("p", { class: "small" }, "Insumos de tus platillos. Considera comprar antes o cambiar el platillo."), sube.length ? sube.map(o => fila(o, true)) : el("p", { class: "muted" }, "Nada sube más de 2%.")),
+      el("div", { class: "card" }, el("h3", {}, "▼ Lo que va a bajar en " + hLabel(h)), el("p", { class: "small" }, "Buen momento para meterlos al menú."), baja.length ? baja.map(o => fila(o, false)) : el("p", { class: "muted" }, "Nada baja más de 2%."))),
     el("div", { class: "card", style: "margin-top:16px" }, el("h3", {}, "Platillos que más cambian de costo"),
-      el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Platillo"), el("th", { class: "n" }, "Costo hoy"), el("th", { class: "n" }, "En " + hLabel(h)), el("th", { class: "n" }, "Cambio"), el("th", { class: "n" }, "Precio de venta"))),
-        el("tbody", {}, afect.slice(0, 6).map(x => el("tr", {}, el("td", {}, x.p.nombre), el("td", { class: "n" }, fmt$(costo(x.p.ing, 0))), el("td", { class: "n" }, fmt$(costo(x.p.ing, h))), el("td", { class: "n" }, flecha(x.d)), el("td", { class: "n" }, fmt$(x.p.precio, 0)))))))
+      el("p", { class: "small" }, "La barra es cuánto de tu precio de venta se va en insumos: azul = hoy, rojo = lo que sube, verde = lo que baja."),
+      afect.slice(0, 6).map(plRow))
   );
   function tile(lab, val, del) { return el("div", { class: "card tile" }, el("div", { class: "lab" }, lab), el("div", { class: "val" }, val), el("div", { class: "del" }, del)); }
+  function tileDona(lab, pct, val, del, color) { return el("div", { class: "card tile" }, el("div", { class: "lab" }, lab),
+    el("div", { style: "display:flex;align-items:center;gap:14px;margin-top:6px" }, dona(pct, color, 70, ""), el("div", {}, el("div", { class: "val", style: "margin:0" }, val), el("div", { class: "del flat" }, del)))); }
 }
 
 /* ---------- 2. Precios ---------- */
@@ -655,7 +756,7 @@ function renderPlatillos() {
     return el("tr", { class: "click", "data-pid": p.pid, on: { click: () => { S.platillo = p.pid; pintarDesglose(); } } },
       el("td", {}, p.nombre, p.propio ? el("span", { class: "pill", style: "margin-left:6px" }, "propio") : ""), el("td", { class: "small" }, TIEMPOS[p.tiempo] || p.tiempo),
       el("td", { class: "n" }, fmt$(c0)), el("td", { class: "n" }, fmt$(ch)), el("td", { class: "n" }, flecha(100 * (ch / c0 - 1))), el("td", { class: "n small" }, fmt$(l) + " – " + fmt$(u)),
-      el("td", { class: "n" }, inp), el("td", { class: "n" }, isNaN(mg) ? "—" : el("span", { class: mg < 55 ? "up" : "" }, mg.toFixed(0) + "%")));
+      el("td", { class: "n" }, inp), el("td", { class: "n", style: "min-width:120px" }, isNaN(mg) ? "—" : el("div", { style: "display:flex;align-items:center;gap:8px;justify-content:flex-end" }, el("div", { class: "barra", style: "width:70px;margin:0" }, el("i", { style: "width:" + Math.max(0, Math.min(100, mg)) + "%;background:" + (mg < 55 ? "var(--coral)" : "var(--green)") })), el("b", { class: mg < 55 ? "up" : "down" }, mg.toFixed(0) + "%"))));
   }));
   // formulario de platillo propio
   const nombre = el("input", { type: "text", placeholder: "Ej. Mole de olla", style: "width:220px" });
@@ -721,35 +822,44 @@ function renderMenu() {
   const inp = (k, lab, step = 1, w = 100) => el("label", {}, lab, el("input", { type: "number", value: P[k], step, min: 0, style: "width:" + w + "px", on: { change: e => { P[k] = parseFloat(e.target.value) || 0; guardar("menu_params", P); calcular(); } } }));
   const excl = el("div", { class: "checks" }, ["pollo", "res", "cerdo", "huevo", "queso"].map(k => el("label", {}, el("input", { type: "checkbox", checked: P.excluir.includes(k), on: { change: e => { P.excluir = e.target.checked ? [...new Set(P.excluir.concat(k))] : P.excluir.filter(x => x !== k); guardar("menu_params", P); calcular(); } } }), "sin " + k)));
   const cat = el("select", { on: { change: e => { P.catalogo = e.target.value; guardar("menu_params", P); calcular(); } } }, el("option", { value: "mio", selected: P.catalogo === "mio" }, "Solo mis platillos"), el("option", { value: "todo", selected: P.catalogo === "todo" }, "Mis platillos + recetario completo"));
-  const salida = el("div", { class: "grid", style: "gap:12px" }), resumen = el("p", { class: "small" });
-  const llmBox = el("div");
+  const salida = el("div", { class: "g-op" }), resumen = el("p", { class: "small" });
+  const llmBox = el("div", { class: "g-op" }), nOpt = el("span", { class: "n" }), nLLM = el("span", { class: "n" }, "verificadas por código");
   function calcular() {
     const { cands, caben } = optimizar(P);
     resumen.textContent = cands.length + " combinaciones evaluadas con precios pronosticados a " + hLabel(h) + " · " + caben.length + " caben en el presupuesto" + (cands.length && !caben.length ? ". Sube el presupuesto, baja comensales o quita platillos caros." : ".");
     const vistos = new Set(), top = [];
     for (const c of caben) { const k = c.sel.filter(p => p.tiempo === "plato_fuerte").map(p => p.pid).sort().join("|"); if (vistos.has(k)) continue; vistos.add(k); top.push(c); if (top.length === 5) break; }
     const activo = leer("menu_activo", null);
-    salida.replaceChildren(...top.map((c, i) => tarjeta(c, "Opción " + (i + 1), activo)));
+    salida.replaceChildren(...top.map((c, i) => tarjeta(c, "Opción " + (i + 1), activo, null, i + 1)));
+    nOpt.textContent = top.length + " opciones";
     pintarLLM();
   }
-  function tarjeta(c, titulo, activo, extra) {
+  function tarjeta(c, titulo, activo, extra, num) {
     const ids = c.sel.map(p => p.pid), esActivo = activo && activo.ids.join() === ids.join();
     const usados = [...new Set(c.sel.flatMap(p => p.ing.map(x => x[0])))].filter(id => INS[id] && INS[id].modelado).map(id => ({ id, c: cambio(id, S.h) })).sort((a, b) => b.c - a.c);
-    const ojo = usados[0] && usados[0].c > 5 ? "Ojo: " + nombreIns(usados[0].id) + " sube " + fmtP(usados[0].c) + ". " : "";
-    const bien = usados.length && usados[usados.length - 1].c < -5 ? "Aprovecha: " + nombreIns(usados[usados.length - 1].id) + " baja " + fmtP(usados[usados.length - 1].c) + "." : "";
-    const pres = P.presupuesto, pct = Math.min(100, 100 * c.ev.semanal / pres), pctHi = Math.min(100, 100 * c.ev.semanal_hi / pres);
+    const tags = [];
+    if (usados[0] && usados[0].c > 5) tags.push(el("span", { class: "badge up" }, "Ojo: " + nombreIns(usados[0].id) + " sube " + fmtP(usados[0].c)));
+    if (usados.length && usados[usados.length - 1].c < -5) tags.push(el("span", { class: "badge down" }, "Aprovecha: " + nombreIns(usados[usados.length - 1].id) + " baja " + fmtP(usados[usados.length - 1].c)));
+    const pres = P.presupuesto, escala = Math.max(pres, c.ev.semanal_hi) * 1.04, pct = Math.min(100, 100 * c.ev.semanal / escala), pctHi = Math.min(100, 100 * c.ev.semanal_hi / escala), pctP = 100 * pres / escala;
+    const cabePeor = c.ev.semanal_hi <= pres, mgPct = 100 * c.ev.margen / P.precio;
     const motivo = el("select", { "aria-label": "Motivo de rechazo" }, ["Muy caro", "No le gusta a mis clientes", "Muy repetitivo", "No sé prepararlo", "Otro"].map(x => el("option", {}, x)));
     const resp = el("span", { class: "small" });
     return el("div", { class: "opcion" + (esActivo ? " activa" : "") },
-      el("h4", {}, titulo + (esActivo ? " · menú activo" : "")), extra || "",
+      el("div", { class: "op-head" }, el("div", { style: "display:flex;align-items:center;gap:10px" }, el("span", { class: "op-num" }, num || "★"), el("h4", {}, titulo)),
+        esActivo ? el("span", { class: "badge flat", style: "background:var(--amber);color:var(--navy)" }, "Menú activo") : el("span", { class: "badge " + (cabePeor ? "down" : "flat"), style: cabePeor ? "" : "background:#fff1d6;color:var(--amber-ink)" }, cabePeor ? "Cabe siempre" : "Ajustado")),
+      extra || "",
       el("div", { class: "platos" }, c.sel.map(p => el("span", { class: "chip" }, el("b", {}, ({ entrada: "Entrada", plato_fuerte: "Fuerte", guarnicion: "Guarn.", bebida: "Bebida" })[p.tiempo] || ""), p.nombre))),
-      el("div", { class: "grid g4", style: "gap:8px" },
-        el("div", {}, el("div", { class: "small" }, "Costo por comida"), el("b", {}, fmt$(c.ev.costo)), el("div", { class: "small" }, fmt$(c.ev.lo) + " – " + fmt$(c.ev.hi))),
-        el("div", {}, el("div", { class: "small" }, "Margen por comida"), el("b", {}, fmt$(c.ev.margen)), el("div", { class: "small" }, (100 * c.ev.margen / P.precio).toFixed(0) + "% de " + fmt$(P.precio, 0))),
-        el("div", { style: "grid-column:span 2" }, el("div", { class: "small" }, "Compra semanal estimada vs presupuesto"),
-          el("div", { class: "meter", role: "img", "aria-label": "Gasto semanal " + fmt$(c.ev.semanal, 0) + " de " + fmt$(pres, 0) }, el("u", { style: "left:" + pct + "%;width:" + Math.max(0, pctHi - pct) + "%" }), el("i", { style: "width:" + pct + "%" })),
-          el("div", { class: "small" }, fmt$(c.ev.semanal, 0) + " de " + fmt$(pres, 0) + (c.ev.semanal_hi > pres ? " · en el peor caso (" + fmt$(c.ev.semanal_hi, 0) + ") te pasarías" : " · cabe incluso en el peor caso")))),
-      el("p", { class: "small", style: "margin:8px 0" }, ojo + bien),
+      el("div", { class: "op-stats" },
+        el("div", { class: "stat" }, el("div", { class: "small" }, "Te cuesta por comida"), el("div", { class: "v" }, fmt$(c.ev.costo)), el("div", { class: "small" }, "entre " + fmt$(c.ev.lo) + " y " + fmt$(c.ev.hi))),
+        el("div", { class: "stat", style: "display:flex;align-items:center;gap:10px" }, dona(mgPct, "#3d7a2a", 58, Math.round(mgPct) + "%"),
+          el("div", {}, el("div", { class: "small" }, "Te queda por comida"), el("div", { class: "v ok" }, fmt$(c.ev.margen)), el("div", { class: "small" }, "de " + fmt$(P.precio, 0))))),
+      el("div", { class: "op-pres" }, el("div", { class: "small", style: "font-weight:600" }, "Compra semanal vs presupuesto"),
+        el("div", { class: "meter" + (c.ev.semanal > pres ? " pasa" : ""), style: "overflow:visible", role: "img", "aria-label": "Gasto semanal " + fmt$(c.ev.semanal, 0) + " de " + fmt$(pres, 0) },
+          el("u", { style: "left:" + pct + "%;width:" + Math.max(0, pctHi - pct) + "%;border-radius:0 999px 999px 0" }), el("i", { style: "width:" + pct + "%" }),
+          el("span", { style: "position:absolute;top:-4px;bottom:-4px;width:3px;border-radius:2px;background:var(--coral-ink);left:" + pctP + "%" })),
+        el("div", { class: "small", style: "display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap" }, el("span", {}, el("b", {}, fmt$(c.ev.semanal, 0)), " de " + fmt$(pres, 0)),
+          el("span", { class: cabePeor ? "ok-t" : "no-t" }, cabePeor ? "Cabe incluso en el peor caso" : "Peor caso " + fmt$(c.ev.semanal_hi, 0)))),
+      tags.length ? el("div", { class: "op-tags" }, tags) : "",
       el("div", { class: "row noprint" },
         el("button", { class: "btn ok", on: { click: () => { guardar("menu_activo", { ids, titulo, h: S.h, fecha: new Date().toISOString().slice(0, 10) }); registrar(true, titulo, "", ids); calcular(); } } }, "✔ Aceptar"),
         motivo, el("button", { class: "btn no", on: { click: () => { registrar(false, titulo, motivo.value, ids); resp.textContent = "Gracias, lo tomamos en cuenta."; } } }, "✖ Rechazar"), resp));
@@ -763,8 +873,8 @@ function renderMenu() {
       const sel = m.platillos.map(pid => todos.find(p => p.pid === pid)).filter(Boolean);
       if (!sel.length) return null;
       const ev = evaluarMenu(sel, P), cabe = ev.semanal <= P.presupuesto;
-      const extra = el("div", {}, el("p", { class: "small", style: "margin:0 0 4px" }, m.razon || ""), el("p", { class: cabe ? "ok-t small" : "no-t small", style: "margin:0" }, cabe ? "✔ Verificado por código: cabe en tu presupuesto" : "✖ Descartado por el código: se pasa del presupuesto (" + fmt$(ev.semanal, 0) + ")"));
-      return cabe || true ? tarjeta({ sel, ev }, "LLM · " + (m.titulo || "Propuesta " + (i + 1)), activo, extra) : null;
+      const extra = el("div", { style: "margin-bottom:4px" }, el("p", { class: "small", style: "margin:0 0 6px" }, m.razon || ""), el("span", { class: "badge " + (cabe ? "down" : "up") }, cabe ? "✔ Verificado por código: cabe en tu presupuesto" : "✖ Descartado por el código: se pasa (" + fmt$(ev.semanal, 0) + ")"));
+      return tarjeta({ sel, ev }, "LLM · " + (m.titulo || "Propuesta " + (i + 1)), activo, extra, "IA");
     }).filter(Boolean);
     llmBox.replaceChildren(...tarjetas);
   }
@@ -772,8 +882,8 @@ function renderMenu() {
     el("h2", {}, "Arma tu menú de la semana"), el("p", { class: "lead" }, "Pon tu presupuesto y cuántos platillos quieres ofrecer. Probamos todas las combinaciones con los precios pronosticados a " + hLabel(h) + " y te damos las que caben, priorizando margen, variedad y poco riesgo de que suban los precios."),
     el("div", { class: "card" }, el("div", { class: "row" }, inp("presupuesto", "Presupuesto semanal ($)", 500, 130), inp("comensales", "Comensales al día"), inp("dias", "Días a la semana"), inp("precio", "Precio de tu comida ($)", 5), inp("nf", "Platos fuertes"), inp("ne", "Entradas/sopas"), inp("nb", "Bebidas"), inp("ng", "Guarniciones"), el("label", {}, "Platillos", cat)),
       el("div", { style: "margin-top:10px" }, excl), resumen),
-    el("h2", { style: "margin:26px 0 10px;font-size:26px" }, "Propuestas del optimizador"), salida,
-    el("h2", { style: "margin:30px 0 10px;font-size:26px" }, "Propuestas de LLM"), llmBox);
+    el("div", { class: "sec-t" }, el("h2", {}, "Propuestas del optimizador"), nOpt), salida,
+    el("div", { class: "sec-t" }, el("h2", {}, "Propuestas de LLM"), nLLM), llmBox);
   calcular();
 }
 
@@ -802,9 +912,10 @@ function renderCompras() {
     calendarioCompras(filas.map(x => x.id)),
     el("div", { class: "card", style: "margin-top:16px" }, el("div", { class: "row", style: "justify-content:space-between" }, el("h3", {}, "Lista de compras"),
       el("div", { class: "row noprint" }, el("button", { class: "btn sec", on: { click: () => window.print() } }, "Imprimir"), el("button", { class: "btn sec", on: { click: () => descargarCSV("lista_compras.csv", [["insumo", "kg", "precio_kg_esperado", "costo_esperado", "costo_min", "costo_max"]].concat(filas.map(x => [nombreIns(x.id), x.k.toFixed(2), precio(x.id, h).toFixed(2), x.c.toFixed(2), x.l.toFixed(2), x.u.toFixed(2)]))) } }, "Descargar CSV"))),
-      el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Insumo"), el("th", { class: "n" }, "Kilos"), el("th", { class: "n" }, "Precio esperado/kg"), el("th", { class: "n" }, "Costo esperado"), el("th", { class: "n" }, "Rango 80%"))),
-        el("tbody", {}, filas.map(x => el("tr", {}, el("td", {}, nombreIns(x.id)), el("td", { class: "n" }, x.k.toFixed(1)), el("td", { class: "n" }, fmt$(precio(x.id, h))), el("td", { class: "n" }, fmt$(x.c, 0)), el("td", { class: "n small" }, INS[x.id].modelado ? fmt$(x.l, 0) + " – " + fmt$(x.u, 0) : "sin pronóstico")))),
-        el("tfoot", {}, el("tr", {}, el("th", {}, "Total"), el("th"), el("th"), el("th", { class: "n" }, fmt$(tot, 0)), el("th", { class: "n" }, fmt$(totL, 0) + " – " + fmt$(totU, 0)))))),
+      el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Insumo"), el("th", { class: "n" }, "Kilos"), el("th", { class: "n" }, "Precio esperado/kg"), el("th", { class: "n" }, "Costo esperado"), el("th", {}, "Peso en tu compra"), el("th", { class: "n" }, "Rango 80%"))),
+        el("tbody", {}, filas.map(x => el("tr", {}, el("td", {}, nombreIns(x.id)), el("td", { class: "n" }, x.k.toFixed(1)), el("td", { class: "n" }, fmt$(precio(x.id, h))), el("td", { class: "n" }, fmt$(x.c, 0)),
+          el("td", { style: "min-width:140px" }, el("div", { style: "display:flex;align-items:center;gap:8px" }, el("div", { class: "barra", style: "flex:1;margin:0" }, el("i", { style: "width:" + (100 * x.c / filas[0].c) + "%;background:" + (INS[x.id].modelado ? (cambio(x.id, h) > 2 ? "var(--coral)" : cambio(x.id, h) < -2 ? "var(--green)" : "var(--navy)") : "var(--gray)") })), el("span", { class: "small" }, Math.round(100 * x.c / tot) + "%"))), el("td", { class: "n small" }, INS[x.id].modelado ? fmt$(x.l, 0) + " – " + fmt$(x.u, 0) : "sin pronóstico")))),
+        el("tfoot", {}, el("tr", {}, el("th", {}, "Total"), el("th"), el("th"), el("th", { class: "n" }, fmt$(tot, 0)), el("th"), el("th", { class: "n" }, fmt$(totL, 0) + " – " + fmt$(totU, 0)))))),
     el("div", { class: "card", style: "margin-top:16px" }, el("h3", {}, "Registra lo que gastaste de verdad"), el("p", { class: "small" }, "Con esto ves qué tanto se acerca lo planeado a lo real, y nosotros medimos si la herramienta funciona (KPI 2)."),
       el("div", { class: "row noprint" }, el("label", {}, "Semana de compra", fecha), el("label", {}, "Gasto real ($)", real),
         el("button", { class: "btn", on: { click: () => { const v = parseFloat(real.value); if (!(v > 0)) { msg.textContent = "Escribe cuánto gastaste."; return; } const g = leer("gastos", []); g.push({ fecha: fecha.value, plan: Math.round(tot), plan_lo: Math.round(totL), plan_hi: Math.round(totU), real: v, menu: activo ? activo.titulo : "menú actual" }); guardar("gastos", g); subirGasto(g[g.length - 1]); renderCompras(); } } }, "Guardar"), msg,
@@ -965,7 +1076,10 @@ D.fondas.forEach(f => selF.append(el("option", { value: f.id }, f.nombre + " · 
 selF.append(el("option", { value: "nueva" }, "Mi fonda nueva (captura tus platillos)"));
 selF.addEventListener("change", () => { S.fonda = selF.value; S.platillo = null; pintar(); });
 document.querySelectorAll("#f-h button").forEach(b => { b.setAttribute("aria-pressed", +b.dataset.h === S.h); b.addEventListener("click", () => { S.h = +b.dataset.h; document.querySelectorAll("#f-h button").forEach(x => x.setAttribute("aria-pressed", x === b)); pintar(); }); });
-$("#sub").textContent = "Precios de la Central de Abasto · pronóstico a 12 semanas · semana del " + new Date(D.semana_actual + "T12:00").toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+$("#sub").replaceChildren(
+  el("span", { class: "hchip vivo" }, "Precios al " + new Date(D.semana_actual + "T12:00").toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })),
+  el("span", { class: "hchip" }, "Central de Abasto CDMX"), el("span", { class: "hchip" }, "Pronóstico a 12 semanas"));
+document.querySelectorAll("#tabs button").forEach(b => b.prepend(icono(b.dataset.ico)));
 $("#f-nota").textContent = "Las fondas son simuladas; los precios son reales.";
 $("#pie").textContent = "Capstone CDA I · ITAM · Barba, Reyes, García-Gayou, Gutiérrez, Contreras · Las sugerencias apoyan, no sustituyen, el criterio del fondero. · ";
 $("#pie").append(el("button", { class: "linkbtn", on: { click: () => mostrarAviso(true) } }, "Privacidad y mis datos"));
