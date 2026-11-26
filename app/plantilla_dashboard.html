@@ -22,6 +22,9 @@ body{margin:0;background:var(--cream);color:var(--ink);font:15px/1.45 var(--body
 header{background:var(--navy);color:#fff;padding:20px 28px 16px 38px}
 .marca{display:flex;align-items:center;gap:14px}
 .logo{width:52px;height:52px;border-radius:14px;background:var(--amber);display:flex;align-items:center;justify-content:center;flex:none}
+.cuenta-btn{margin-left:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font:600 14px var(--body);background:#fff;color:var(--navy);border:0;border-radius:999px;padding:9px 16px 9px 10px;cursor:pointer;flex:none}
+.cuenta-btn svg{width:26px;height:26px;padding:4px;border-radius:50%;background:var(--amber);fill:none;stroke:var(--navy);stroke-width:2;stroke-linecap:round}
+.cuenta-btn:hover{background:#f3ecdf}
 .logo svg{width:30px;height:30px;fill:none;stroke:var(--navy);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 header h1{font:700 30px/1.05 var(--head);letter-spacing:.5px;margin:0;text-transform:uppercase}
 header h1 span{color:var(--amber)}
@@ -76,7 +79,7 @@ h3{font:600 16px var(--body);margin:0 0 8px;color:var(--navy)}
 .plrow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 84px;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--grid)}
 .plrow:last-child{border-bottom:0}
 .plrow>.badge{justify-self:end}
-@media (max-width:640px){.sem{grid-template-columns:1fr}.g-op{grid-template-columns:1fr}.plrow{grid-template-columns:1fr 70px}.plrow>div:nth-child(2){grid-column:1/-1;grid-row:2}header h1{font-size:22px}}
+@media (max-width:640px){.cuenta-btn span{display:none}.cuenta-btn{padding:6px}.sem{grid-template-columns:1fr}.g-op{grid-template-columns:1fr}.plrow{grid-template-columns:1fr 70px}.plrow>div:nth-child(2){grid-column:1/-1;grid-row:2}header h1{font-size:22px}}
 .fc{position:relative;height:12px;border-radius:999px;background:#e3f0dc;overflow:hidden}
 .fc i{position:absolute;left:0;top:0;bottom:0;background:var(--navy);border-radius:999px}
 .fc b{position:absolute;top:0;bottom:0;background:var(--coral);opacity:.75}
@@ -177,6 +180,7 @@ footer{color:var(--muted);font-size:12px;padding:0 38px 30px}
       <h1>Predicción de insumos <span>·</span> fondas CDMX</h1>
       <div class="chips-head" id="sub"></div>
     </div>
+    <button class="cuenta-btn" id="btn-cuenta" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span id="btn-cuenta-txt">Mi cuenta</span></button>
   </div>
   <nav role="tablist" id="tabs">
     <button role="tab" data-tab="inicio" data-ico="home" aria-selected="true">Mi fonda</button>
@@ -1087,9 +1091,9 @@ $("#sub").replaceChildren(
   el("span", { class: "hchip" }, "Central de Abasto CDMX"), el("span", { class: "hchip" }, "Pronóstico a 12 semanas"));
 document.querySelectorAll("#tabs button").forEach(b => b.prepend(icono(b.dataset.ico)));
 $("#f-nota").textContent = "Las fondas son simuladas; los precios son reales.";
-$("#pie").textContent = "Capstone CDA I · ITAM · Barba, Reyes, García-Gayou, Gutiérrez, Contreras · Las sugerencias apoyan, no sustituyen, el criterio del fondero. · ";
-$("#pie").append(el("button", { class: "linkbtn", on: { click: () => mostrarAviso(true) } }, "Privacidad y mis datos"));
-if (NUBE.activa) $("#pie").append(" · ", el("button", { class: "linkbtn", on: { click: mostrarCuenta } }, "Mi cuenta"));
+$("#pie").replaceChildren(el("button", { class: "linkbtn", on: { click: () => mostrarAviso(true) } }, "Privacidad y mis datos"));
+// botón de arriba a la derecha: con nube abre la cuenta (entrar / perfil); sin nube, la privacidad y los datos de este dispositivo
+$("#btn-cuenta").addEventListener("click", () => NUBE.activa ? mostrarCuenta() : mostrarAviso(true));
 pintar();
 if (!privAceptada()) mostrarAviso(false);
 iniciarNube();
